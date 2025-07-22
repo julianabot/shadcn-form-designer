@@ -1,7 +1,9 @@
+import {Button} from "@/components/ui/button.tsx";
+
 export default function Demo() {
   return (
-    <div>
-      <h1>Demo</h1>
+    <div className={"flex flex-col items-center justify-center h-screen"}>
+      <Button>Demo</Button>
     </div>
   )
 }
