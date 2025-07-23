@@ -13,6 +13,9 @@
     "skipLibCheck": true,
     "strict": true,
     "allowImportingTsExtensions": true,
+    "paths": {
+      "@/*": ["src/*"]
+    },
   },
   "include": ["src"]
 }
