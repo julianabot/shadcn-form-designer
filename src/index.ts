@@ -1,3 +1,3 @@
-import {Diamond} from "@/components/diamond.tsx";
+import { Button } from "./components/button";
 
-export {Diamond};
+export { Button };
