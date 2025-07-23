@@ -1,0 +1,1 @@
+npx git-conventional-commits commit-msg-hook "$1"
