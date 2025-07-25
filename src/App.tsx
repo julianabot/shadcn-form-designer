@@ -1,5 +1,3 @@
-import { ExampleCombobox } from "@/components/ui/combobox";
-
 function App() {
   return (
     <div className="flex flex-col h-screen items-center justify-center gap-1.5">
@@ -7,7 +5,6 @@ function App() {
       <p className="text-gray-600">
         A simple and customizable form builder for React.
       </p>
-      <ExampleCombobox />
     </div>
   );
 }

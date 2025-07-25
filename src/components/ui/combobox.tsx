@@ -19,32 +19,29 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
+type Option = {
+  label: string;
+  value: string;
+};
 
-export function ExampleCombobox() {
+type ComboboxProps = {
+  options: Option[];
+  value: string;
+  onValueChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+};
+
+export function Combobox({
+  options,
+  value,
+  onValueChange,
+  placeholder = "Select option...",
+  className,
+}: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+
+  const selected = options.find((opt) => opt.value === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -53,36 +50,34 @@ export function ExampleCombobox() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className={cn("w-[200px] justify-between", className)}
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
+          {selected ? selected.label : placeholder}
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Search..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {options.map((opt) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
+                  key={opt.value}
+                  value={opt.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                    onValueChange(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
                 >
                   <CheckIcon
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === framework.value ? "opacity-100" : "opacity-0"
+                      value === opt.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {framework.label}
+                  {opt.label}
                 </CommandItem>
               ))}
             </CommandGroup>
