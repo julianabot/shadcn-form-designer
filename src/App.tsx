@@ -8,6 +8,7 @@ function App() {
         A simple and customizable form builder for React.
       </p>
       <DatePicker
+        mode="single"
         value={new Date()}
         onChange={(date) => console.log(date)}
         placeholder="Select a date"
