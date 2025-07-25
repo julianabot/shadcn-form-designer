@@ -1,3 +1,5 @@
+import { DatePicker } from "./components/ui/date-picker";
+
 function App() {
   return (
     <div className="flex flex-col h-screen items-center justify-center gap-1.5">
@@ -5,6 +7,12 @@ function App() {
       <p className="text-gray-600">
         A simple and customizable form builder for React.
       </p>
+      <DatePicker
+        value={new Date()}
+        onChange={(date) => console.log(date)}
+        placeholder="Select a date"
+        className="mt-4"
+      />
     </div>
   );
 }

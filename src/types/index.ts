@@ -11,5 +11,5 @@ type Field =
   | "Select"
   | "Switch";
 
-//TODO: Combobox, Date Picker, Time Picker, Datetime Picker components are not implemented yet
+//TODO: Date Picker, Time Picker, Datetime Picker components are not implemented yet
 export type { Field };
