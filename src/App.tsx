@@ -8,11 +8,12 @@ function App() {
         A simple and customizable form builder for React.
       </p>
       <DatePicker
-        mode="single"
         value={new Date()}
         onChange={(date) => console.log(date)}
         placeholder="Select a date"
         className="mt-4"
+        maxDate={new Date(2026, 11, 31)}
+        minDate={new Date(2020, 0, 1)}
       />
     </div>
   );

@@ -12,23 +12,28 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+import type { Locale } from "date-fns";
+
 type DatePickerProps = {
   value?: Date;
   onChange: (date: Date | undefined) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  minDate?: Date;
+  maxDate?: Date;
+  locale?: Locale;
 };
 
-// TODO:
-// Add min/max date props
-// Add localization support
 export function DatePicker({
   value,
   onChange,
   placeholder = "Pick a date",
   className,
   disabled = false,
+  minDate,
+  maxDate,
+  locale,
 }: DatePickerProps) {
   return (
     <Popover>
@@ -43,15 +48,26 @@ export function DatePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, "PPP") : <span>{placeholder}</span>}
+          {value ? (
+            format(value, "PPP", { locale })
+          ) : (
+            <span>{placeholder}</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
           selected={value}
-          captionLayout="dropdown"
           onSelect={onChange}
+          captionLayout="dropdown"
+          startMonth={minDate || new Date()}
+          endMonth={maxDate || new Date(2100, 11, 31)}
+          disabled={{
+            before: minDate || new Date(1900, 0, 1),
+            after: maxDate || new Date(2100, 0, 1),
+          }}
+          locale={locale}
         />
       </PopoverContent>
     </Popover>
