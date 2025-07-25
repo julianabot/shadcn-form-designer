@@ -1,3 +1,4 @@
+import { Input } from "./components/ui";
 import { DatePicker } from "./components/ui/date-picker";
 
 function App() {
@@ -14,6 +15,13 @@ function App() {
         className="mt-4"
         maxDate={new Date(2026, 11, 31)}
         minDate={new Date(2020, 0, 1)}
+      />
+      <Input
+        type="time"
+        id="time-picker"
+        step="1"
+        defaultValue="10:30"
+        className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
       />
     </div>
   );
