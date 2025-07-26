@@ -33,5 +33,5 @@ Ideal for dashboards, internal tools, CMS systems, or any platform that needs fl
 ## 📦 Installation
 
 ```bash
-npm install shadcn-form-designer
+npm install @julianabot/shadcn-form-designer
 ```

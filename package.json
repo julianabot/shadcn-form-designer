@@ -1,6 +1,6 @@
 {
-  "name": "shadcn-form-designer-v2",
-  "version": "0.0.0",
+  "name": "@julianabot/shadcn-form-designer",
+  "version": "0.0.4",
   "type": "module",
   "types": "./dist/index.d.ts",
   "main": "./dist/shadcn-form-designer.cjs",
@@ -9,6 +9,14 @@
     "dist",
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/julianabot/shadcn-form-designer"
+  },
+  "bugs": {
+    "url": "https://github.com/julianabot/shadcn-form-designer/issues"
+  },
+  "homepage": "https://github.com/julianabot/shadcn-form-designer#readme",
   "scripts": {
     "dev": "vite",
     "lint": "eslint .",
