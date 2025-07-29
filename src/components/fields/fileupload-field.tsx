@@ -1,7 +1,6 @@
 import { FileUpload } from "@/components/ui/file-upload";
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -12,7 +11,7 @@ import type { FieldValues } from "react-hook-form";
 function FileUploadField<TFieldValues extends FieldValues>(
   props: FieldProps<TFieldValues>
 ) {
-  const { control, name, description, error } = props;
+  const { control, name, error } = props;
 
   return (
     <FormField
@@ -23,7 +22,6 @@ function FileUploadField<TFieldValues extends FieldValues>(
           <FormControl>
             <FileUpload {...field} />
           </FormControl>
-          <FormDescription>{description}</FormDescription>
           <FormMessage>{error}</FormMessage>
         </FormItem>
       )}

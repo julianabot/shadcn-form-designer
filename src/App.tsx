@@ -1,10 +1,11 @@
+import { CheckboxField } from "@/components/fields/checkbox-field";
+import { FileUploadField } from "@/components/fields/fileupload-field";
 import { InputField } from "@/components/fields/input-field";
 import { TextareaField } from "@/components/fields/textarea-field";
 import { Button } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { FileUploadField } from "./components/fields/fileupload-field";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -17,6 +18,7 @@ const formSchema = z.object({
     .refine((file) => file.size <= 5 * 1024 * 1024, {
       message: "Image must be less than 5MB",
     }),
+  checkbox: z.boolean(),
 });
 
 function App() {
@@ -62,7 +64,13 @@ function App() {
             name="image"
             error={errors.description?.message}
           />
-
+          <CheckboxField
+            control={control}
+            name="checkbox"
+            label="Checkbox"
+            description="This is an example of a checkbox field"
+            error={errors.checkbox?.message}
+          />
           <Button>Submit</Button>
         </form>
       </FormProvider>
