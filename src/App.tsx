@@ -60,9 +60,9 @@ function App() {
           <FileUploadField
             control={control}
             name="image"
-            label=""
             error={errors.description?.message}
           />
+
           <Button>Submit</Button>
         </form>
       </FormProvider>

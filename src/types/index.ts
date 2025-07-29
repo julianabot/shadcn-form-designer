@@ -16,7 +16,7 @@ type Field =
 interface FieldProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
   name: FieldPath<TFieldValues>;
-  label: string;
+  label?: string;
   placeholder?: string;
   description?: string;
   error?: string;
