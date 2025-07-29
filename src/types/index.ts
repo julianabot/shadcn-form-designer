@@ -1,3 +1,5 @@
+import type { Control, FieldPath, FieldValues } from "react-hook-form";
+
 type Field =
   | "Input"
   | "Textarea"
@@ -11,4 +13,14 @@ type Field =
   | "Select"
   | "Switch";
 
-export type { Field };
+interface FieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
+  name: FieldPath<TFieldValues>;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  error?: string;
+  className?: string;
+}
+
+export type { Field, FieldProps };

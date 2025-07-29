@@ -6,11 +6,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import type { FieldProps } from "@/types";
 import type { FieldValues } from "react-hook-form";
 
-function InputField<TFieldValues extends FieldValues>(
+function TextareaField<TFieldValues extends FieldValues>(
   props: FieldProps<TFieldValues>
 ) {
   const { control, name, label, placeholder, description, error } = props;
@@ -23,7 +23,7 @@ function InputField<TFieldValues extends FieldValues>(
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input placeholder={placeholder} {...field} />
+            <Textarea placeholder={placeholder} {...field} />
           </FormControl>
           <FormDescription>{description}</FormDescription>
           <FormMessage>{error}</FormMessage>
@@ -33,4 +33,4 @@ function InputField<TFieldValues extends FieldValues>(
   );
 }
 
-export { InputField };
+export { TextareaField };

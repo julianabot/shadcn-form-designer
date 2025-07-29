@@ -1,4 +1,5 @@
 import { InputField } from "@/components/fields/input-field";
+import { TextareaField } from "@/components/fields/textarea-field";
 import { Button } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
@@ -6,6 +7,7 @@ import { z } from "zod";
 
 const formSchema = z.object({
   name: z.string().min(1),
+  description: z.string().min(1).max(10),
 });
 
 function App() {
@@ -14,6 +16,7 @@ function App() {
   });
 
   const {
+    control,
     formState: { errors },
   } = form;
 
@@ -29,12 +32,20 @@ function App() {
           className="w-full max-w-2xl flex flex-col gap-5"
         >
           <InputField
-            control={form.control}
+            control={control}
             name="name"
             label="Name"
             placeholder="Type something..."
             description="This is an example input field."
             error={errors.name?.message}
+          />
+          <TextareaField
+            control={control}
+            name="description"
+            label="Description"
+            placeholder="Type something"
+            description="This is an example of a description field"
+            error={errors.description?.message}
           />
           <Button>Submit</Button>
         </form>
