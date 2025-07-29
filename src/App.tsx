@@ -4,10 +4,19 @@ import { Button } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
+import { FileUploadField } from "./components/fields/fileupload-field";
 
 const formSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1).max(10),
+  image: z
+    .instanceof(File)
+    .refine((file) => file.type.startsWith("image/"), {
+      message: "File must be an image",
+    })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Image must be less than 5MB",
+    }),
 });
 
 function App() {
@@ -45,6 +54,13 @@ function App() {
             label="Description"
             placeholder="Type something"
             description="This is an example of a description field"
+            error={errors.description?.message}
+          />
+          {/* TODO: Fix input for this */}
+          <FileUploadField
+            control={control}
+            name="image"
+            label=""
             error={errors.description?.message}
           />
           <Button>Submit</Button>

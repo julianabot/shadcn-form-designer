@@ -3,7 +3,7 @@ import type { Control, FieldPath, FieldValues } from "react-hook-form";
 type Field =
   | "Input"
   | "Textarea"
-  | "File Input"
+  | "File Upload"
   | "Checkbox"
   | "Combobox"
   | "Radio Group"
