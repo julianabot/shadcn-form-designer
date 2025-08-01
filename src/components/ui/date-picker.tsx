@@ -19,7 +19,6 @@ type DatePickerProps = {
   onChange: (date: Date | undefined) => void;
   placeholder?: string;
   className?: string;
-  disabled?: boolean;
   minDate?: Date;
   maxDate?: Date;
   locale?: Locale;
@@ -30,7 +29,6 @@ export function DatePicker({
   onChange,
   placeholder = "Pick a date",
   className,
-  disabled = false,
   minDate,
   maxDate,
   locale,
@@ -42,10 +40,9 @@ export function DatePicker({
           variant="outline"
           data-empty={!value}
           className={cn(
-            "w-[280px] justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
+            "justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
             className
           )}
-          disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? (

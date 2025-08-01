@@ -5,9 +5,11 @@ import { RadioGroupField } from "@/components/fields/radiogroup-field";
 import { TextareaField } from "@/components/fields/textarea-field";
 import { Button } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { enUS } from "date-fns/locale";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { ComboboxField } from "./components/fields/combobox-field";
+import { DatePickerField } from "./components/fields/datepicker-field";
 
 const educationOptions = [
   { label: "High School", value: "high_school" },
@@ -25,6 +27,10 @@ const notificationOptions = [
 
 const validEducationValues = educationOptions.map((opt) => opt.value);
 const validNotificationValues = notificationOptions.map((opt) => opt.value);
+
+const minDate = new Date(1900, 0, 1);
+const today = new Date();
+const maxDate = new Date(today.setFullYear(today.getFullYear() - 18));
 
 const formSchema = z.object({
   name: z
@@ -61,6 +67,16 @@ const formSchema = z.object({
     .min(1, { error: "Notfication is required" })
     .refine((val) => validNotificationValues.includes(val), {
       error: "Please select a valid notification",
+    }),
+  birthday: z
+    .date({
+      error: "Birthday is required.",
+    })
+    .refine((d) => d >= minDate, {
+      message: `Date must be after ${minDate.toLocaleDateString()}`,
+    })
+    .refine((d) => d <= maxDate, {
+      message: `Date must be before ${maxDate.toLocaleDateString()}`,
     }),
 });
 
@@ -126,6 +142,15 @@ function App() {
             name="notification"
             label="Notify me about..."
             options={notificationOptions}
+          />
+          <DatePickerField
+            control={form.control}
+            name="birthday"
+            label="Birthday"
+            placeholder="Select a birthday"
+            minDate={minDate}
+            maxDate={maxDate}
+            locale={enUS}
           />
           <Button>Submit</Button>
         </form>
