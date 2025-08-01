@@ -101,7 +101,6 @@ function App() {
             description="This is an example of a description field"
             error={errors.description?.message}
           />
-          {/* TODO: Fix input for this */}
           <FileUploadField
             control={control}
             name="image"
