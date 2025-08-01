@@ -4,14 +4,16 @@ import { InputField } from "@/components/fields/input-field";
 import { RadioGroupField } from "@/components/fields/radiogroup-field";
 import { TextareaField } from "@/components/fields/textarea-field";
 import { Button } from "@/components/ui";
+import type { Option } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { enUS } from "date-fns/locale";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { ComboboxField } from "./components/fields/combobox-field";
 import { DatePickerField } from "./components/fields/datepicker-field";
+import { SelectField } from "./components/fields/select-field";
 
-const educationOptions = [
+const educationOptions: Option[] = [
   { label: "High School", value: "high_school" },
   { label: "Associate Degree", value: "associate" },
   { label: "Bachelor's Degree", value: "bachelor" },
@@ -19,14 +21,21 @@ const educationOptions = [
   { label: "Doctorate", value: "doctorate" },
 ];
 
-const notificationOptions = [
+const notificationOptions: Option[] = [
   { label: "All new messages", value: "all" },
   { label: "Direct messages and mentions", value: "mentions" },
   { label: "Nothing", value: "none" },
 ];
 
+const mediumOptions: Option[] = [
+  { label: "Books", value: "books" },
+  { label: "Music", value: "music" },
+  { label: "Movies", value: "movies" },
+];
+
 const validEducationValues = educationOptions.map((opt) => opt.value);
 const validNotificationValues = notificationOptions.map((opt) => opt.value);
+const validMediumValues = mediumOptions.map((opt) => opt.value);
 
 const minDate = new Date(1900, 0, 1);
 const today = new Date();
@@ -83,6 +92,14 @@ const formSchema = z.object({
       error: "This is a required field.",
     })
     .min(1),
+  medium: z
+    .string({
+      error: "This is a required field.",
+    })
+    .min(1, { error: "Medium is required" })
+    .refine((val) => validMediumValues.includes(val), {
+      message: "Please select a valid medium level",
+    }),
 });
 
 function App() {
@@ -104,7 +121,7 @@ function App() {
       <FormProvider {...form}>
         <form
           onSubmit={form.handleSubmit((data) => console.log(data))}
-          className="w-full max-w-2xl flex flex-col gap-5"
+          className="w-full max-w-2xl flex flex-col gap-5 px-5"
         >
           <InputField
             control={control}
@@ -165,6 +182,13 @@ function App() {
             placeholder="Type something..."
             description="This is an example time picker field."
             error={errors.time?.message}
+          />
+          <SelectField
+            control={control}
+            name="medium"
+            label="Medium"
+            description="Select a medium"
+            options={mediumOptions}
           />
           <Button>Submit</Button>
         </form>

@@ -17,16 +17,20 @@ interface ComboboxFieldProps<TFieldValues extends FieldValues>
   options: Option[];
 }
 
-function ComboboxField<TFieldValues extends FieldValues>({
-  control,
-  name,
-  label,
-  description,
-  options,
-  placeholder = "Select an option...",
-  className,
-  error,
-}: ComboboxFieldProps<TFieldValues>) {
+function ComboboxField<TFieldValues extends FieldValues>(
+  props: ComboboxFieldProps<TFieldValues>
+) {
+  const {
+    control,
+    name,
+    label,
+    description,
+    options,
+    placeholder = "Select an option...",
+    className,
+    error,
+  } = props;
+
   return (
     <FormField
       control={control}
