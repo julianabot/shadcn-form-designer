@@ -18,14 +18,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-
-type Option = {
-  label: string;
-  value: string;
-};
+import type { ComboboxOption } from "@/types";
 
 type ComboboxProps = {
-  options: Option[];
+  options: ComboboxOption[];
   value: string;
   onValueChange: (value: string) => void;
   placeholder?: string;
@@ -50,13 +46,13 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-[200px] justify-between", className)}
+          className={cn("justify-between", className)}
         >
           {selected ? selected.label : placeholder}
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="p-0">
         <Command>
           <CommandInput placeholder="Search..." />
           <CommandList>

@@ -6,6 +6,17 @@ import { Button } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
+import { ComboboxField } from "./components/fields/combobox-field";
+
+const educationOptions = [
+  { label: "High School", value: "high_school" },
+  { label: "Associate Degree", value: "associate" },
+  { label: "Bachelor's Degree", value: "bachelor" },
+  { label: "Master's Degree", value: "master" },
+  { label: "Doctorate", value: "doctorate" },
+];
+
+const validEducationValues = educationOptions.map((opt) => opt.value);
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -19,6 +30,12 @@ const formSchema = z.object({
       message: "Image must be less than 5MB",
     }),
   checkbox: z.boolean(),
+  education: z
+    .string()
+    .min(1, { message: "Education is required" })
+    .refine((val) => validEducationValues.includes(val), {
+      message: "Please select a valid education level",
+    }),
 });
 
 function App() {
@@ -70,6 +87,14 @@ function App() {
             label="Checkbox"
             description="This is an example of a checkbox field"
             error={errors.checkbox?.message}
+          />
+          <ComboboxField
+            control={control}
+            name="education"
+            label="Education"
+            description="What's your education level"
+            options={educationOptions}
+            error={errors.education?.message}
           />
           <Button>Submit</Button>
         </form>

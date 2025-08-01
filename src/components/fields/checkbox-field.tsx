@@ -23,7 +23,9 @@ function CheckboxField<TFieldValues extends FieldValues>(
           <FormControl>
             <FormLabel
               htmlFor={name}
-              className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-gray-50 dark:has-[[aria-checked=true]]:border-gray-900 dark:has-[[aria-checked=true]]:bg-gray-950"
+              className={`${
+                error && "has-[[aria-checked=true]]:destructive"
+              } hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-gray-50 dark:has-[[aria-checked=true]]:border-gray-900 dark:has-[[aria-checked=true]]:bg-gray-950`}
             >
               <Checkbox
                 {...field}

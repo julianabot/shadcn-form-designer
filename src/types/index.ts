@@ -23,4 +23,9 @@ interface FieldProps<TFieldValues extends FieldValues> {
   className?: string;
 }
 
-export type { Field, FieldProps };
+type ComboboxOption = {
+  label: string;
+  value: string;
+};
+
+export type { ComboboxOption, Field, FieldProps };
