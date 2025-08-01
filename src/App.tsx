@@ -12,6 +12,7 @@ import { z } from "zod";
 import { ComboboxField } from "./components/fields/combobox-field";
 import { DatePickerField } from "./components/fields/datepicker-field";
 import { SelectField } from "./components/fields/select-field";
+import { SwitchField } from "./components/fields/switch-field";
 
 const educationOptions: Option[] = [
   { label: "High School", value: "high_school" },
@@ -100,6 +101,7 @@ const formSchema = z.object({
     .refine((val) => validMediumValues.includes(val), {
       message: "Please select a valid medium level",
     }),
+  switch: z.boolean().optional(),
 });
 
 function App() {
@@ -189,6 +191,12 @@ function App() {
             label="Medium"
             description="Select a medium"
             options={mediumOptions}
+          />
+          <SwitchField
+            control={control}
+            name="switch"
+            label="Switch"
+            description="This is an example of a switch."
           />
           <Button>Submit</Button>
         </form>
