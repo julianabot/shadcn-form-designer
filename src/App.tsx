@@ -63,8 +63,8 @@ const formSchema = z.object({
       message: "Please select a valid education level",
     }),
   notification: z
-    .string()
-    .min(1, { error: "Notfication is required" })
+    .string({ error: "Notfication is required" })
+    .min(1)
     .refine((val) => validNotificationValues.includes(val), {
       error: "Please select a valid notification",
     }),
@@ -78,6 +78,11 @@ const formSchema = z.object({
     .refine((d) => d <= maxDate, {
       message: `Date must be before ${maxDate.toLocaleDateString()}`,
     }),
+  time: z
+    .string({
+      error: "This is a required field.",
+    })
+    .min(1),
 });
 
 function App() {
@@ -151,6 +156,15 @@ function App() {
             minDate={minDate}
             maxDate={maxDate}
             locale={enUS}
+          />
+          <InputField
+            control={control}
+            name="time"
+            label="Time"
+            type="time"
+            placeholder="Type something..."
+            description="This is an example time picker field."
+            error={errors.time?.message}
           />
           <Button>Submit</Button>
         </form>
