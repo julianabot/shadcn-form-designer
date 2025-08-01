@@ -1,6 +1,7 @@
 import { CheckboxField } from "@/components/fields/checkbox-field";
 import { FileUploadField } from "@/components/fields/fileupload-field";
 import { InputField } from "@/components/fields/input-field";
+import { RadioGroupField } from "@/components/fields/radiogroup-field";
 import { TextareaField } from "@/components/fields/textarea-field";
 import { Button } from "@/components/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,25 +17,50 @@ const educationOptions = [
   { label: "Doctorate", value: "doctorate" },
 ];
 
+const notificationOptions = [
+  { label: "All new messages", value: "all" },
+  { label: "Direct messages and mentions", value: "mentions" },
+  { label: "Nothing", value: "none" },
+];
+
 const validEducationValues = educationOptions.map((opt) => opt.value);
+const validNotificationValues = notificationOptions.map((opt) => opt.value);
 
 const formSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1).max(10),
+  name: z
+    .string({
+      error: "This is a required field.",
+    })
+    .min(1),
+  description: z
+    .string({
+      error: "This is a required field.",
+    })
+    .min(1)
+    .max(10),
   image: z
     .instanceof(File)
     .refine((file) => file.type.startsWith("image/"), {
-      message: "File must be an image",
+      error: "File must be an image",
     })
     .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "Image must be less than 5MB",
-    }),
-  checkbox: z.boolean(),
+      error: "Image must be less than 5MB",
+    })
+    .optional(),
+  checkbox: z.boolean().optional(),
   education: z
-    .string()
-    .min(1, { message: "Education is required" })
+    .string({
+      error: "This is a required field.",
+    })
+    .min(1, { error: "Education is required" })
     .refine((val) => validEducationValues.includes(val), {
       message: "Please select a valid education level",
+    }),
+  notification: z
+    .string()
+    .min(1, { error: "Notfication is required" })
+    .refine((val) => validNotificationValues.includes(val), {
+      error: "Please select a valid notification",
     }),
 });
 
@@ -49,7 +75,7 @@ function App() {
   } = form;
 
   return (
-    <div className="flex flex-col h-screen items-center justify-center gap-1.5">
+    <div className="flex flex-col py-20 items-center justify-center gap-1.5">
       <h1 className="text-2xl font-bold">Shadcn Form Designer</h1>
       <p className="text-gray-600">
         A simple and customizable form builder for React.
@@ -79,7 +105,7 @@ function App() {
           <FileUploadField
             control={control}
             name="image"
-            error={errors.description?.message}
+            error={errors.image?.message}
           />
           <CheckboxField
             control={control}
@@ -95,6 +121,12 @@ function App() {
             description="What's your education level"
             options={educationOptions}
             error={errors.education?.message}
+          />
+          <RadioGroupField
+            control={form.control}
+            name="notification"
+            label="Notify me about..."
+            options={notificationOptions}
           />
           <Button>Submit</Button>
         </form>

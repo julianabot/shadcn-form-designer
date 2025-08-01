@@ -18,10 +18,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import type { ComboboxOption } from "@/types";
+import type { Option } from "@/types";
 
 type ComboboxProps = {
-  options: ComboboxOption[];
+  options: Option[];
   value: string;
   onValueChange: (value: string) => void;
   placeholder?: string;
