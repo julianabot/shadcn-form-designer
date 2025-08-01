@@ -46,7 +46,12 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("justify-between", className)}
+          className={cn(
+            `justify-between font-normal ${
+              selected ?? "text-muted-foreground"
+            }`,
+            className
+          )}
         >
           {selected ? selected.label : placeholder}
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
