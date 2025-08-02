@@ -1,20 +1,20 @@
 import * as FormFields from "./form";
 
-import { Button } from "./button";
-import { Calendar } from "./calendar";
-import { Checkbox } from "./checkbox";
-import { Combobox } from "./combobox";
-import { Command } from "./command";
-import { DatePicker } from "./date-picker";
-import { Dialog } from "./dialog";
-import { FileUpload } from "./file-upload";
-import { Input } from "./input";
-import { Label } from "./label";
-import { Popover } from "./popover";
-import { RadioGroup } from "./radio-group";
-import { Select } from "./select";
-import { Switch } from "./switch";
-import { Textarea } from "./textarea";
+import * as Button from "./button";
+import * as Calendar from "./calendar";
+import * as Checkbox from "./checkbox";
+import * as Combobox from "./combobox";
+import * as Command from "./command";
+import * as DatePicker from "./date-picker";
+import * as Dialog from "./dialog";
+import * as FileUpload from "./file-upload";
+import * as Input from "./input";
+import * as Label from "./label";
+import * as Popover from "./popover";
+import * as RadioGroup from "./radio-group";
+import * as Select from "./select";
+import * as Switch from "./switch";
+import * as Textarea from "./textarea";
 
 export {
   Button,
