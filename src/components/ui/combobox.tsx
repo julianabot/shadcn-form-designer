@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import type { Option } from "@/types";
+import type { Option } from "../../types";
 
 type ComboboxProps = {
   options: Option[];

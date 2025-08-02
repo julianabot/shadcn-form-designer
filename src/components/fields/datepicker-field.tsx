@@ -8,9 +8,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import type { FieldProps } from "@/types";
 import type { Locale } from "date-fns";
 import type { FieldValues } from "react-hook-form";
+import type { FieldProps } from "../../types";
 
 interface DatePickerFieldProps<TFieldValues extends FieldValues>
   extends FieldProps<TFieldValues> {

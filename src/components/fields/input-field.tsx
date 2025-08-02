@@ -7,10 +7,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import type { FieldProps } from "@/types";
 import { clsx } from "clsx";
 import type { HTMLInputTypeAttribute } from "react";
 import type { FieldValues } from "react-hook-form";
+import type { FieldProps } from "../../types";
 
 interface InputFieldProps<TFieldValues extends FieldValues>
   extends FieldProps<TFieldValues> {

@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { FieldProps, Option } from "@/types";
 import type { FieldValues } from "react-hook-form";
+import type { FieldProps, Option } from "../../types";
 
 interface SelectFieldProps<TFieldValues extends FieldValues>
   extends FieldProps<TFieldValues> {

@@ -6,8 +6,8 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import type { FieldProps } from "@/types";
 import type { FieldValues } from "react-hook-form";
+import type { FieldProps } from "../../types";
 
 function SwitchField<TFieldValues extends FieldValues>(
   props: FieldProps<TFieldValues>

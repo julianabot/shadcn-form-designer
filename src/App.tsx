@@ -7,11 +7,11 @@ import { SelectField } from "@/components/fields/select-field";
 import { SwitchField } from "@/components/fields/switch-field";
 import { TextareaField } from "@/components/fields/textarea-field";
 import { Button } from "@/components/ui/button";
-import type { Option } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { enUS } from "date-fns/locale";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
+import type { Option } from "./types";
 
 const educationOptions: Option[] = [
   { label: "High School", value: "high_school" },
@@ -44,42 +44,36 @@ const maxDate = new Date(today.setFullYear(today.getFullYear() - 18));
 const formSchema = z.object({
   name: z
     .string({
-      error: "This is a required field.",
+      required_error: "This is a required field.",
     })
     .min(1),
   description: z
     .string({
-      error: "This is a required field.",
+      required_error: "This is a required field.",
     })
     .min(1)
     .max(10),
   image: z
     .instanceof(File)
-    .refine((file) => file.type.startsWith("image/"), {
-      error: "File must be an image",
-    })
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      error: "Image must be less than 5MB",
-    })
+    .refine((file) => file.type.startsWith("image/"))
+    .refine((file) => file.size <= 5 * 1024 * 1024)
     .optional(),
   checkbox: z.boolean().optional(),
   education: z
     .string({
-      error: "This is a required field.",
+      required_error: "This is a required field.",
     })
-    .min(1, { error: "Education is required" })
+    .min(1)
     .refine((val) => validEducationValues.includes(val), {
       message: "Please select a valid education level",
     }),
   notification: z
-    .string({ error: "Notfication is required" })
+    .string({ required_error: "Notfication is required" })
     .min(1)
-    .refine((val) => validNotificationValues.includes(val), {
-      error: "Please select a valid notification",
-    }),
+    .refine((val) => validNotificationValues.includes(val)),
   birthday: z
     .date({
-      error: "Birthday is required.",
+      required_error: "Birthday is required.",
     })
     .refine((d) => d >= minDate, {
       message: `Date must be after ${minDate.toLocaleDateString()}`,
@@ -89,14 +83,14 @@ const formSchema = z.object({
     }),
   time: z
     .string({
-      error: "This is a required field.",
+      required_error: "This is a required field.",
     })
     .min(1),
   medium: z
     .string({
-      error: "This is a required field.",
+      required_error: "This is a required field.",
     })
-    .min(1, { error: "Medium is required" })
+    .min(1)
     .refine((val) => validMediumValues.includes(val), {
       message: "Please select a valid medium level",
     }),

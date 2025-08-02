@@ -7,8 +7,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import type { FieldProps } from "@/types";
 import type { FieldValues } from "react-hook-form";
+import type { FieldProps } from "../../types";
 
 function TextareaField<TFieldValues extends FieldValues>(
   props: FieldProps<TFieldValues>

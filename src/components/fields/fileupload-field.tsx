@@ -7,9 +7,9 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import type { FieldProps } from "@/types";
 import { useEffect, useState } from "react";
 import type { FieldValues } from "react-hook-form";
+import type { FieldProps } from "../../types";
 
 function FileUploadField<TFieldValues extends FieldValues>({
   control,

@@ -1,34 +1,117 @@
-import * as FormFields from "./form";
-
-import * as Button from "./button";
-import * as Calendar from "./calendar";
-import * as Combobox from "./combobox";
-import * as Command from "./command";
-import * as DatePicker from "./date-picker";
-import * as Dialog from "./dialog";
-import * as FileUpload from "./file-upload";
-import * as Input from "./input";
-import * as Label from "./label";
-import * as Popover from "./popover";
-import * as RadioGroup from "./radio-group";
-import * as Select from "./select";
-import * as Switch from "./switch";
-import * as Textarea from "./textarea";
+import { Button } from "./button";
+import { Calendar, CalendarDayButton } from "./calendar";
+import { Combobox } from "./combobox";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "./command";
+import { DatePicker } from "./date-picker";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+} from "./dialog";
+import { FileUpload } from "./file-upload";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useFormField,
+} from "./form";
+import { Input } from "./input";
+import { Label } from "./label";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverTrigger,
+} from "./popover";
+import { RadioGroup, RadioGroupItem } from "./radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
+import { Switch } from "./switch";
+import { Textarea } from "./textarea";
 
 export {
   Button,
   Calendar,
+  CalendarDayButton,
   Combobox,
   Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
   DatePicker,
   Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
   FileUpload,
-  FormFields,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
   Input,
   Label,
   Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverTrigger,
   RadioGroup,
+  RadioGroupItem,
   Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
   Switch,
   Textarea,
+  useFormField,
 };

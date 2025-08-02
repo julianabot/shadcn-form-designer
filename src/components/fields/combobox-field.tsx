@@ -9,8 +9,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import type { FieldProps, Option } from "@/types";
 import type { FieldValues } from "react-hook-form";
+import type { FieldProps, Option } from "../../types";
 
 interface ComboboxFieldProps<TFieldValues extends FieldValues>
   extends FieldProps<TFieldValues> {
