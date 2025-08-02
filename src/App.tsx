@@ -1,18 +1,18 @@
 import { CheckboxField } from "@/components/fields/checkbox-field";
+import { ComboboxField } from "@/components/fields/combobox-field";
+import { DatePickerField } from "@/components/fields/datepicker-field";
 import { FileUploadField } from "@/components/fields/fileupload-field";
 import { InputField } from "@/components/fields/input-field";
 import { RadioGroupField } from "@/components/fields/radiogroup-field";
+import { SelectField } from "@/components/fields/select-field";
+import { SwitchField } from "@/components/fields/switch-field";
 import { TextareaField } from "@/components/fields/textarea-field";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import type { Option } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { enUS } from "date-fns/locale";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { ComboboxField } from "./components/fields/combobox-field";
-import { DatePickerField } from "./components/fields/datepicker-field";
-import { SelectField } from "./components/fields/select-field";
-import { SwitchField } from "./components/fields/switch-field";
 
 const educationOptions: Option[] = [
   { label: "High School", value: "high_school" },
