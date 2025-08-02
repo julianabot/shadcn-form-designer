@@ -1,18 +1,18 @@
-import * as CombobboxField from "./combobox-field";
-import * as DatepickerField from "./datepicker-field";
-import * as FileuploadField from "./fileupload-field";
-import * as InputField from "./input-field";
-import * as RadiogroupField from "./radiogroup-field";
-import * as SelectField from "./select-field";
-import * as SwitchField from "./switch-field";
-import * as TextareaField from "./textarea-field";
+import { ComboboxField } from "./combobox-field";
+import { DatePickerField } from "./datepicker-field";
+import { FileUploadField } from "./fileupload-field";
+import { InputField } from "./input-field";
+import { RadioGroupField } from "./radiogroup-field";
+import { SelectField } from "./select-field";
+import { SwitchField } from "./switch-field";
+import { TextareaField } from "./textarea-field";
 
 export {
-  CombobboxField,
-  DatepickerField,
-  FileuploadField,
+  ComboboxField,
+  DatePickerField,
+  FileUploadField,
   InputField,
-  RadiogroupField,
+  RadioGroupField,
   SelectField,
   SwitchField,
   TextareaField,
