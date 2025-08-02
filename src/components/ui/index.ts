@@ -2,7 +2,6 @@ import * as FormFields from "./form";
 
 import * as Button from "./button";
 import * as Calendar from "./calendar";
-import * as Checkbox from "./checkbox";
 import * as Combobox from "./combobox";
 import * as Command from "./command";
 import * as DatePicker from "./date-picker";
@@ -19,7 +18,6 @@ import * as Textarea from "./textarea";
 export {
   Button,
   Calendar,
-  Checkbox,
   Combobox,
   Command,
   DatePicker,

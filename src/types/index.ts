@@ -4,12 +4,10 @@ type Field =
   | "Input"
   | "Textarea"
   | "File Upload"
-  | "Checkbox"
   | "Combobox"
   | "Radio Group"
   | "Date Picker"
   | "Time Picker"
-  | "Datetime Picker"
   | "Select"
   | "Switch";
 

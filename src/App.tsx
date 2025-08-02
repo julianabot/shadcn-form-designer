@@ -1,4 +1,3 @@
-import { CheckboxField } from "@/components/fields/checkbox-field";
 import { ComboboxField } from "@/components/fields/combobox-field";
 import { DatePickerField } from "@/components/fields/datepicker-field";
 import { FileUploadField } from "@/components/fields/fileupload-field";
@@ -145,13 +144,6 @@ function App() {
             control={control}
             name="image"
             error={errors.image?.message}
-          />
-          <CheckboxField
-            control={control}
-            name="checkbox"
-            label="Checkbox"
-            description="This is an example of a checkbox field"
-            error={errors.checkbox?.message}
           />
           <ComboboxField
             control={control}

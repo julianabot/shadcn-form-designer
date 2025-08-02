@@ -1,4 +1,3 @@
-import * as CheckboxField from "./checkbox-field";
 import * as CombobboxField from "./combobox-field";
 import * as DatepickerField from "./datepicker-field";
 import * as FileuploadField from "./fileupload-field";
@@ -9,7 +8,6 @@ import * as SwitchField from "./switch-field";
 import * as TextareaField from "./textarea-field";
 
 export {
-  CheckboxField,
   CombobboxField,
   DatepickerField,
   FileuploadField,
