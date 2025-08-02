@@ -19,11 +19,21 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      external: [
+        "react",
+        "react-dom",
+        "react-hook-form",
+        "react/jsx-runtime",
+        "@hookform/resolvers",
+        "zod",
+      ],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "react-hook-form": "ReactHookForm",
+          "@hookform/resolvers": "HookFormResolvers",
+          zod: "Zod",
         },
       },
     },
