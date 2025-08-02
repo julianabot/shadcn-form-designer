@@ -1,6 +1,6 @@
 {
   "name": "@julianabot/shadcn-form-designer",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "type": "module",
   "types": "./dist/index.d.ts",
   "main": "./dist/shadcn-form-designer.cjs",
