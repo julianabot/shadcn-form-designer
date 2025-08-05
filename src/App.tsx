@@ -9,6 +9,7 @@ import { TextareaField } from "@/components/fields/textarea-field";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { enUS } from "date-fns/locale";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import type { Option } from "./types";
@@ -54,10 +55,16 @@ const formSchema = z.object({
     .min(1)
     .max(10),
   image: z
-    .instanceof(File)
-    .refine((file) => file.type.startsWith("image/"))
-    .refine((file) => file.size <= 5 * 1024 * 1024)
-    .optional(),
+    .instanceof(File, { message: "Must be a file" })
+    .refine((file) => Boolean(file), {
+      message: "Image is required",
+    })
+    .refine((file) => file.type.startsWith("image/"), {
+      message: "File must be an image",
+    })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Image must be less than 5MB",
+    }),
   checkbox: z.boolean().optional(),
   education: z
     .string({
@@ -106,6 +113,10 @@ function App() {
     control,
     formState: { errors },
   } = form;
+
+  useEffect(() => {
+    console.log("ERROR FOR UPLOAD: ", errors.image?.message);
+  }, [errors]);
 
   return (
     <div className="flex flex-col py-20 items-center justify-center gap-1.5">
@@ -177,6 +188,7 @@ function App() {
             label="Medium"
             description="Select a medium"
             options={mediumOptions}
+            error={errors.medium?.message}
           />
           <SwitchField
             control={control}

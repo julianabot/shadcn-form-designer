@@ -3,6 +3,7 @@
 import { Combobox } from "@/components/ui/combobox";
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -50,10 +51,8 @@ function ComboboxField<TFieldValues extends FieldValues>(
               )}
             />
           </FormControl>
-          {description && (
-            <p className="text-muted-foreground text-sm">{description}</p>
-          )}
-          <FormMessage />
+          {description && <FormDescription>{description}</FormDescription>}
+          {error && <FormMessage>{error}</FormMessage>}
         </FormItem>
       )}
     />

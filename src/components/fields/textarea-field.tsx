@@ -25,8 +25,8 @@ function TextareaField<TFieldValues extends FieldValues>(
           <FormControl>
             <Textarea placeholder={placeholder} {...field} />
           </FormControl>
-          <FormDescription>{description}</FormDescription>
-          <FormMessage>{error}</FormMessage>
+          {description && <FormDescription>{description}</FormDescription>}
+          {error && <FormMessage>{error}</FormMessage>}
         </FormItem>
       )}
     />

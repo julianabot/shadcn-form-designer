@@ -1,5 +1,6 @@
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -30,6 +31,7 @@ function SelectField<TFieldValues extends FieldValues>(
     description,
     options,
     placeholder = "Select an option...",
+    error,
   } = props;
 
   return (
@@ -53,10 +55,8 @@ function SelectField<TFieldValues extends FieldValues>(
               ))}
             </SelectContent>
           </Select>
-          {description && (
-            <p className="text-muted-foreground text-sm">{description}</p>
-          )}
-          <FormMessage />
+          {description && <FormDescription>{description}</FormDescription>}
+          {error && <FormMessage>{error}</FormMessage>}
         </FormItem>
       )}
     />

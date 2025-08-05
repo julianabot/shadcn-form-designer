@@ -1,12 +1,14 @@
-import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { ImageUp } from "lucide-react";
+import { FormLabel } from "./form";
 
 interface FileUploadProps extends React.ComponentProps<"input"> {
   previewUrl?: string;
   alt?: string;
+  error?: string;
 }
 
-function FileUpload({ previewUrl, alt, ...props }: FileUploadProps) {
+function FileUpload({ previewUrl, alt, error, ...props }: FileUploadProps) {
   const ReuploadFile = () => (
     <div className="relative w-full">
       <img
@@ -25,7 +27,12 @@ function FileUpload({ previewUrl, alt, ...props }: FileUploadProps) {
   );
 
   const UploadFile = () => (
-    <label className="cursor-pointer border border-dashed border-gray-300 rounded-lg px-6 py-4 text-center hover:bg-gray-50 transition flex flex-col items-center justify-center gap-2">
+    <label
+      className={cn(
+        "cursor-pointer border border-dashed rounded-lg px-6 py-4 text-center hover:bg-gray-50 transition flex flex-col items-center justify-center gap-2",
+        error ? "border-destructive" : "border-gray-300"
+      )}
+    >
       <div className="flex flex-row gap-1.5 items-center justify-center">
         <ImageUp size={20} className="text-gray-800" />
         <p className="text-gray-800">Upload an Image</p>
@@ -37,7 +44,7 @@ function FileUpload({ previewUrl, alt, ...props }: FileUploadProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label>Header</Label>
+      <FormLabel>Header</FormLabel>
       {previewUrl ? <ReuploadFile /> : <UploadFile />}
     </div>
   );

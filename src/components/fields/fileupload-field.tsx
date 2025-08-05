@@ -14,6 +14,7 @@ import type { FieldProps } from "../../types";
 function FileUploadField<TFieldValues extends FieldValues>({
   control,
   name,
+  error,
 }: FieldProps<TFieldValues>) {
   const [file, setFile] = useState<File>();
   const [previewUrl, setPreviewUrl] = useState<string>();
@@ -36,6 +37,7 @@ function FileUploadField<TFieldValues extends FieldValues>({
           <FormControl>
             <div className="space-y-2">
               <FileUpload
+                error={error}
                 previewUrl={previewUrl}
                 alt={previewUrl}
                 onChange={(e) => {
@@ -48,7 +50,7 @@ function FileUploadField<TFieldValues extends FieldValues>({
               />
             </div>
           </FormControl>
-          <FormMessage />
+          {error && <FormMessage>{error}</FormMessage>}
         </FormItem>
       )}
     />

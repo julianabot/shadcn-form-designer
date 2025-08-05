@@ -40,8 +40,8 @@ function InputField<TFieldValues extends FieldValues>(
               {...field}
             />
           </FormControl>
-          <FormDescription>{description}</FormDescription>
-          <FormMessage>{error}</FormMessage>
+          {description && <FormDescription>{description}</FormDescription>}
+          {error && <FormMessage>{error}</FormMessage>}
         </FormItem>
       )}
     />
