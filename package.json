@@ -1,14 +1,14 @@
 {
   "name": "@julianabot/shadcn-form-designer",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "main": "./dist/shadcn-form-designer.cjs",
   "module": "./dist/shadcn-form-designer.js",
   "files": [
     "dist",
     "src"
   ],
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/julianabot/shadcn-form-designer"
@@ -33,15 +33,12 @@
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.5",
-    "@tailwindcss/vite": "^4.1.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.525.0",
-    "react-day-picker": "^9.8.0",
-    "tailwind-variants": "^1.0.0",
-    "tailwindcss": "^4.1.11"
+    "react-day-picker": "^9.8.0"
   },
   "peerDependencies": {
     "@hookform/resolvers": "^4.1.3",
@@ -53,6 +50,7 @@
   "devDependencies": {
     "@eslint/js": "^9.30.1",
     "@hookform/resolvers": "^4.1.3",
+    "@tailwindcss/vite": "^4.1.11",
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
@@ -61,7 +59,11 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "react-hook-form": "^7.54.0",
+    "tailwind-variants": "^1.0.0",
+    "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
     "vite": "^7.0.4",

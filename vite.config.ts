@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -22,8 +21,8 @@ export default defineConfig({
       external: [
         "react",
         "react-dom",
-        "react-hook-form",
         "react/jsx-runtime",
+        "react-hook-form",
         "@hookform/resolvers",
         "zod",
       ],
@@ -31,6 +30,7 @@ export default defineConfig({
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "react/jsx-runtime": "jsxRuntime",
           "react-hook-form": "ReactHookForm",
           "@hookform/resolvers": "HookFormResolvers",
           zod: "Zod",
