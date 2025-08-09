@@ -23,7 +23,10 @@ function TextareaField<TFieldValues extends FieldValues>(
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Textarea placeholder={placeholder} {...field} />
+            <Textarea
+              placeholder={placeholder ?? `Enter ${label.toLowerCase()}`}
+              {...field}
+            />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           {error && <FormMessage>{error}</FormMessage>}

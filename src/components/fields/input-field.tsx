@@ -31,7 +31,7 @@ function InputField<TFieldValues extends FieldValues>(
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Input
-              placeholder={placeholder}
+              placeholder={placeholder ?? `Enter ${label.toLowerCase()}`}
               type={type}
               className={clsx(
                 type === "time" &&
