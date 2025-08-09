@@ -58,6 +58,7 @@ import {
   SelectValue,
 } from "./select";
 import { Switch } from "./switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 import { Textarea } from "./textarea";
 
 export {
@@ -112,6 +113,10 @@ export {
   SelectTrigger,
   SelectValue,
   Switch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Textarea,
   useFormField,
 };
