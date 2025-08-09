@@ -15,6 +15,7 @@ import {
 } from "./fields";
 import { Button } from "./ui";
 
+// TODO: Fix rendering of component types
 export function DynamicForm({ config }: { config: FieldConfig[] }) {
   const schema = buildSchema(config);
   type FormValues = z.infer<typeof schema>;

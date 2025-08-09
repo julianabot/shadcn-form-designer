@@ -1,5 +1,5 @@
-import { FieldsExample } from "@/components/fields-example-tab";
-import { FormDesigner } from "@/components/form-designer-tab";
+import { FieldsExample } from "@/components/tabs/fields-example-tab";
+import { FormDesigner } from "@/components/tabs/form-designer-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function App() {

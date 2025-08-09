@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { enUS } from "date-fns/locale";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import type { Option } from "../types";
+import type { Option } from "../../types";
 
 const educationOptions: Option[] = [
   { label: "High School", value: "high_school" },
