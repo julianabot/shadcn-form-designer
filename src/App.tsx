@@ -1,4 +1,5 @@
-import { FieldsExample } from "@/components/fields-example";
+import { FieldsExample } from "@/components/fields-example-tab";
+import { FormDesigner } from "@/components/form-designer-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function App() {
@@ -9,7 +10,7 @@ function App() {
         A simple and customizable form builder for React.
       </p>
       <Tabs
-        defaultValue="fields"
+        defaultValue="designer"
         className="w-full max-w-2xl justify-center items-center px-5"
       >
         <TabsList>
@@ -20,7 +21,7 @@ function App() {
           <FieldsExample />
         </TabsContent>
         <TabsContent value="designer" className="w-full">
-          Change your password here.
+          <FormDesigner />
         </TabsContent>
       </Tabs>
     </div>

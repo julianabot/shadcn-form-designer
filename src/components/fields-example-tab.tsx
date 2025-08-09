@@ -136,6 +136,7 @@ export function FieldsExample() {
           error={errors.description?.message}
         />
         <FileUploadField
+          label="file upload"
           control={control}
           name="image"
           error={errors.image?.message}
