@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
+import { Plus, Trash2 } from "lucide-react";
+import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 import { FieldTypeEnum, type FieldType } from "../types";
 import { InputField, SelectField, SwitchField } from "./fields";
-import { buttonVariants } from "./ui/button";
+import { Input, Label } from "./ui";
+import { Button, buttonVariants } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -41,15 +43,21 @@ const formSchema = z.object({
   // Name and label should be the same and handled on submit
   name: z.string({ required_error: "This is a required field" }),
   description: z.string({ required_error: "This is a required field" }),
+  // TODO: min and max refine when type is WithMinMax it should be required,
   required: z.boolean(),
+  options: z.array(
+    z.object({ value: z.string().min(1, "Option is required") })
+  ),
 });
 
+// TODO: remove other values when changing types
 function AddFieldDialog() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: "input",
+      type: FieldTypeEnum.Combobox,
       required: false,
+      options: [{ value: "" }],
     },
   });
 
@@ -57,6 +65,7 @@ function AddFieldDialog() {
     control,
     formState: { errors },
     watch,
+    register,
   } = form;
 
   const rawType = watch("type");
@@ -68,6 +77,16 @@ function AddFieldDialog() {
   const WithMinMax = new Set<FieldType | undefined>([
     FieldTypeEnum.Input,
     FieldTypeEnum.Textarea,
+  ]);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "options",
+  });
+  const WithMultipleChoices = new Set<FieldType | undefined>([
+    FieldTypeEnum.Combobox,
+    FieldTypeEnum.Radio,
+    FieldTypeEnum.Select,
   ]);
 
   return (
@@ -121,6 +140,36 @@ function AddFieldDialog() {
                   type="number"
                   error={errors.description?.message}
                 />
+              </div>
+            )}
+            {WithMultipleChoices.has(type!) && (
+              <div className="flex flex-col gap-2 justify-center">
+                <Label>Options</Label>
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex flex-row gap-1">
+                    <Input
+                      {...register(`options.${index}.value`)}
+                      placeholder="Enter option"
+                    />
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  className="w-fit rounded-2xl bg-gray-100 border-0 self-center"
+                  variant="outline"
+                  onClick={() => append({ value: "" })}
+                >
+                  <Plus className="mr-1 h-4 w-4" /> Add another option
+                </Button>
               </div>
             )}
             <SwitchField control={control} name="required" label="Required" />
