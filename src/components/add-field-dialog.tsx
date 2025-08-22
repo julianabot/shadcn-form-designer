@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { FieldTypeEnum, type FieldType } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
+import { useEffect } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 
@@ -120,6 +121,8 @@ function AddFieldDialog() {
     defaultValues: {
       name: "",
       description: "",
+      min: "",
+      max: "",
       type: FieldTypeEnum.Combobox,
       required: false,
       options: [{ value: "" }],
@@ -132,6 +135,7 @@ function AddFieldDialog() {
     watch,
     register,
     handleSubmit,
+    setValue,
   } = form;
 
   const rawType = watch("type");
@@ -149,6 +153,18 @@ function AddFieldDialog() {
   const handleFormSubmit = (data: FormValues) => {
     console.log(data);
   };
+
+  useEffect(() => {
+    if (WithMinMax.has(type)) {
+      setValue("options", [{ value: "" }]);
+      return;
+    }
+    if (WithMultipleChoices.has(type)) {
+      setValue("min", "");
+      setValue("max", "");
+      return;
+    }
+  }, [type, setValue]);
 
   return (
     <Dialog>
