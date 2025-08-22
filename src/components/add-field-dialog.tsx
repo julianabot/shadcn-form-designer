@@ -1,12 +1,5 @@
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2 } from "lucide-react";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
-import z from "zod";
-import { FieldTypeEnum, type FieldType } from "../types";
-import { InputField, SelectField, SwitchField } from "./fields";
-import { Input, Label } from "./ui";
-import { Button, buttonVariants } from "./ui/button";
+import { InputField, SelectField, SwitchField } from "@/components/fields";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,9 +7,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "@/components/ui/dialog";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { FieldTypeEnum, type FieldType } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash2 } from "lucide-react";
+import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import z from "zod";
 
-const fieldTypes: FieldType[] = [
+const WithMultipleChoices = new Set<FieldType | undefined>([
+  FieldTypeEnum.Combobox,
+  FieldTypeEnum.Radio,
+  FieldTypeEnum.Select,
+]);
+
+const WithMinMax = new Set<FieldType | undefined>([
+  FieldTypeEnum.Input,
+  FieldTypeEnum.Textarea,
+]);
+
+const FieldTypes: FieldType[] = [
   "input",
   "textarea",
   "file",
@@ -27,34 +45,81 @@ const fieldTypes: FieldType[] = [
   "switch",
 ];
 
-const fieldTypeOptions: { value: FieldType; label: string }[] = fieldTypes.map(
+const FieldTypeOptions: { value: FieldType; label: string }[] = FieldTypes.map(
   (type) => ({
     value: type,
     label: type.charAt(0).toUpperCase() + type.slice(1),
   })
 );
 
-const formSchema = z.object({
-  type: z
-    .string({ required_error: "This is a required field" })
-    .refine((val) => fieldTypes.includes(val as FieldType), {
-      message: "Please select a valid field type",
-    }),
-  // Name and label should be the same and handled on submit
-  name: z.string({ required_error: "This is a required field" }),
-  description: z.string({ required_error: "This is a required field" }),
-  // TODO: min and max refine when type is WithMinMax it should be required,
-  required: z.boolean(),
-  options: z.array(
-    z.object({ value: z.string().min(1, "Option is required") })
-  ),
-});
+const FormSchema = z
+  .object({
+    type: z
+      .string({ required_error: "This is a required field" })
+      .refine((val) => FieldTypes.includes(val as FieldType), {
+        message: "Please select a valid field type",
+      }),
+    name: z.string().min(1, "Name is required"),
+    description: z.string().min(1, "Description is required"),
+    required: z.boolean(),
+    min: z.string().optional(),
+    max: z.string().optional(),
+    options: z.array(
+      z.object({
+        value: z.string().min(1, "Option is required"),
+      })
+    ),
+  })
+  .superRefine(({ type, options, min, max }, ctx) => {
+    if (WithMultipleChoices.has(type as FieldType)) {
+      const cleaned = options.map((opt) => ({
+        value: opt.value?.trim(),
+      }));
 
-// TODO: remove other values when changing types
+      const empty = cleaned.some((o) => !o.value);
+
+      if (options.length < 2) {
+        ctx.addIssue({
+          path: ["options"],
+          code: z.ZodIssueCode.custom,
+          message: "At least 2 options are required",
+        });
+      }
+
+      if (empty) {
+        ctx.addIssue({
+          path: ["options"],
+          code: z.ZodIssueCode.custom,
+          message: "Options cannot be empty",
+        });
+      }
+    }
+
+    if (WithMinMax.has(type as FieldType)) {
+      if (!min || !max) {
+        ctx.addIssue({
+          path: ["min"],
+          code: z.ZodIssueCode.custom,
+          message: "Min and Max are required",
+        });
+      } else if (Number(min) >= Number(max)) {
+        ctx.addIssue({
+          path: ["max"],
+          code: z.ZodIssueCode.custom,
+          message: "Max must be greater than Min",
+        });
+      }
+    }
+  });
+
+type FormValues = z.infer<typeof FormSchema>;
+
 function AddFieldDialog() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(FormSchema),
     defaultValues: {
+      name: "",
+      description: "",
       type: FieldTypeEnum.Combobox,
       required: false,
       options: [{ value: "" }],
@@ -66,6 +131,7 @@ function AddFieldDialog() {
     formState: { errors },
     watch,
     register,
+    handleSubmit,
   } = form;
 
   const rawType = watch("type");
@@ -74,20 +140,15 @@ function AddFieldDialog() {
   )
     ? (rawType as FieldType)
     : undefined;
-  const WithMinMax = new Set<FieldType | undefined>([
-    FieldTypeEnum.Input,
-    FieldTypeEnum.Textarea,
-  ]);
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
   });
-  const WithMultipleChoices = new Set<FieldType | undefined>([
-    FieldTypeEnum.Combobox,
-    FieldTypeEnum.Radio,
-    FieldTypeEnum.Select,
-  ]);
+
+  const handleFormSubmit = (data: FormValues) => {
+    console.log(data);
+  };
 
   return (
     <Dialog>
@@ -104,12 +165,15 @@ function AddFieldDialog() {
           <DialogDescription className="hidden"></DialogDescription>
         </DialogHeader>
         <FormProvider {...form}>
-          <form className="flex flex-col gap-3">
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={handleSubmit(handleFormSubmit)}
+          >
             <SelectField
               control={control}
               name="type"
               label="Type"
-              options={fieldTypeOptions}
+              options={FieldTypeOptions}
               error={errors.type?.message}
             />
             <InputField
@@ -125,54 +189,71 @@ function AddFieldDialog() {
               error={errors.description?.message}
             />
             {WithMinMax.has(type) && (
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row gap-2 items-st">
                 <InputField
                   control={control}
-                  name="name"
+                  name="min"
                   label="Min"
                   type="number"
-                  error={errors.name?.message}
+                  error={errors.min?.message}
                 />
                 <InputField
                   control={control}
-                  name="description"
+                  name="max"
                   label="Max"
                   type="number"
-                  error={errors.description?.message}
+                  error={errors.max?.message}
                 />
               </div>
             )}
-            {WithMultipleChoices.has(type!) && (
-              <div className="flex flex-col gap-2 justify-center">
-                <Label>Options</Label>
-                {fields.map((field, index) => (
-                  <div key={field.id} className="flex flex-row gap-1">
-                    <Input
-                      {...register(`options.${index}.value`)}
-                      placeholder="Enter option"
-                    />
-                    {fields.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => remove(index)}
-                      >
-                        <Trash2 />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  className="w-fit rounded-2xl bg-gray-100 border-0 self-center"
-                  variant="outline"
-                  onClick={() => append({ value: "" })}
-                >
-                  <Plus className="mr-1 h-4 w-4" /> Add another option
-                </Button>
-              </div>
+
+            {WithMultipleChoices.has(type) && (
+              <FormField
+                control={control}
+                name="options"
+                render={() => (
+                  <FormItem className="flex flex-col justify-center">
+                    <FormLabel>Options</FormLabel>
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex flex-col gap-1">
+                        <div className="flex flex-row gap-1">
+                          <FormControl>
+                            <Input
+                              {...register(`options.${index}.value`)}
+                              placeholder="Enter option"
+                            />
+                          </FormControl>
+                          {fields.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => remove(index)}
+                            >
+                              <Trash2 />
+                            </Button>
+                          )}
+                        </div>
+                        <FormMessage>
+                          {errors.options?.[index]?.value?.message}
+                        </FormMessage>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      className="w-fit rounded-2xl bg-gray-100 border-0 self-center"
+                      variant="outline"
+                      onClick={() => append({ value: "" })}
+                    >
+                      + Add another option
+                    </Button>
+                  </FormItem>
+                )}
+              />
             )}
             <SwitchField control={control} name="required" label="Required" />
+            <Button type="submit" className="mt-5">
+              Submit
+            </Button>
           </form>
         </FormProvider>
       </DialogContent>
