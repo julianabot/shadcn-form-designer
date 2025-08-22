@@ -36,6 +36,7 @@ type BaseField<T extends ZodTypeAny> = CommonFieldMeta & {
   type: FieldType;
   // TODO: Remove this field, since we will have a different processing for this
   validation?: T;
+  required?: boolean;
 };
 
 type TextField = BaseField<z.ZodString> & {

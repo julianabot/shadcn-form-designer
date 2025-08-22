@@ -17,23 +17,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import {
+  isDateFieldType,
+  isFileFieldType,
+  isInputFieldType,
+  isMultipleOptionFieldType,
+} from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import { FieldTypeEnum, type FieldConfig, type FieldType } from "../types";
-
-const MultipleOptionField = new Set<FieldType | undefined>([
-  FieldTypeEnum.Combobox,
-  FieldTypeEnum.Radio,
-  FieldTypeEnum.Select,
-]);
-
-const TextFieldType = new Set<FieldType | undefined>([
-  FieldTypeEnum.Input,
-  FieldTypeEnum.Textarea,
-]);
 
 const FieldTypes: FieldType[] = [
   "input",
@@ -45,13 +40,6 @@ const FieldTypes: FieldType[] = [
   "select",
   "switch",
 ];
-
-const FieldTypeOptions: { value: FieldType; label: string }[] = FieldTypes.map(
-  (type) => ({
-    value: type,
-    label: type.charAt(0).toUpperCase() + type.slice(1),
-  })
-);
 
 const FormSchema = z
   .object({
@@ -68,7 +56,7 @@ const FormSchema = z
     options: z.array(z.string()).optional(),
   })
   .superRefine(({ type, options, minLength, maxLength }, ctx) => {
-    if (MultipleOptionField.has(type as FieldType)) {
+    if (isMultipleOptionFieldType(type)) {
       // TODO: Fix validation and clean up
       // - Should have no repeting options
       // - Should have > 2 options
@@ -83,7 +71,7 @@ const FormSchema = z
       }
     }
 
-    if (TextFieldType.has(type as FieldType)) {
+    if (isInputFieldType(type)) {
       if (!minLength || !maxLength) {
         ctx.addIssue({
           path: ["minLength"],
@@ -131,46 +119,73 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     setValue,
   } = form;
 
-  const rawType = watch("type");
-  const type: FieldType = Object.values(FieldTypeEnum).includes(
-    rawType as FieldType
-  )
-    ? (rawType as FieldType)
-    : "input";
-
+  const type = watch("type");
   const options = watch("options");
 
   const processFormSubmit = (data: AddFieldDialogFormValues) => {
-    // TODO: Add required in FieldConfig
-    const { label, minLength, maxLength, required } = data;
+    const {
+      label,
+      minLength,
+      maxLength,
+      required,
+      options: tempOptions,
+    } = data;
     const name = label
       .toLowerCase()
       .replace(/[^a-zA-Z0-9]/g, "")
       .slice(0, 10);
 
-    if (type === FieldTypeEnum.Input || type === FieldTypeEnum.Textarea) {
+    const basePayload: {
+      label: string;
+      name: string;
+      required: boolean;
+    } = {
+      label,
+      name,
+      required,
+    };
+
+    if (isInputFieldType(type)) {
       handleFormSubmit({
+        ...basePayload,
         type,
-        label,
-        name,
         minLength,
         maxLength,
       });
     }
-    if (MultipleOptionField.has(type as FieldType)) {
-      // handleFormSubmit({
-      //   ...data,
-      //   min: undefined,
-      //   max: undefined,
-      // });
+
+    if (isMultipleOptionFieldType(type)) {
+      handleFormSubmit({
+        ...basePayload,
+        type,
+        options: tempOptions
+          ? tempOptions.map((label) => ({
+              label,
+              value: label
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9]/g, "")
+                .slice(0, 10),
+            }))
+          : [],
+      });
+    }
+
+    if (isFileFieldType(type) || isDateFieldType(type)) {
+      handleFormSubmit({
+        type,
+        label,
+        name,
+        required,
+      });
     }
   };
+
   useEffect(() => {
-    if (TextFieldType.has(type)) {
+    if (isInputFieldType(type)) {
       setValue("options", undefined);
       return;
     }
-    if (MultipleOptionField.has(type)) {
+    if (isMultipleOptionFieldType(type)) {
       setValue("minLength", undefined);
       setValue("maxLength", undefined);
       return;
@@ -200,7 +215,10 @@ function AddFieldDialog(props: AddFieldDialogProps) {
               control={control}
               name="type"
               label="Type"
-              options={FieldTypeOptions}
+              options={FieldTypes.map((type) => ({
+                value: type,
+                label: type.charAt(0).toUpperCase() + type.slice(1),
+              }))}
               error={errors.type?.message}
             />
             <InputField
@@ -215,7 +233,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
               label="Description"
               error={errors.description?.message}
             />
-            {TextFieldType.has(type) && (
+            {isInputFieldType(type) && (
               <div className="flex flex-row gap-2 items-start">
                 <InputField
                   control={control}
@@ -233,7 +251,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
                 />
               </div>
             )}
-            {MultipleOptionField.has(type) && (
+            {isMultipleOptionFieldType(type) && (
               <FormField
                 control={control}
                 name="options"
