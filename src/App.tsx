@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="flex flex-col py-20 items-center justify-center gap-1.5">
       <h1 className="text-2xl font-bold">Shadcn Form Designer</h1>
-      <p className="text-gray-600">
+      <p className="text-gray-600 text-center">
         A simple and customizable form builder for React.
       </p>
       <Tabs
