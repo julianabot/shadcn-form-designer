@@ -34,7 +34,8 @@ type FieldType = (typeof FieldTypeEnum)[keyof typeof FieldTypeEnum];
 
 type BaseField<T extends ZodTypeAny> = CommonFieldMeta & {
   type: FieldType;
-  validation: T;
+  // TODO: Remove this field, since we will have a different processing for this
+  validation?: T;
 };
 
 type TextField = BaseField<z.ZodString> & {

@@ -22,15 +22,15 @@ import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import { FieldTypeEnum, type FieldType } from "../types";
+import { FieldTypeEnum, type FieldConfig, type FieldType } from "../types";
 
-const WithMultipleChoices = new Set<FieldType | undefined>([
+const MultipleOptionField = new Set<FieldType | undefined>([
   FieldTypeEnum.Combobox,
   FieldTypeEnum.Radio,
   FieldTypeEnum.Select,
 ]);
 
-const WithMinMax = new Set<FieldType | undefined>([
+const TextFieldType = new Set<FieldType | undefined>([
   FieldTypeEnum.Input,
   FieldTypeEnum.Textarea,
 ]);
@@ -63,12 +63,12 @@ const FormSchema = z
     label: z.string().min(1, "Name is required"),
     description: z.string().optional(),
     required: z.boolean(),
-    min: z.string().optional(),
-    max: z.string().optional(),
+    minLength: z.number().optional(),
+    maxLength: z.number().optional(),
     options: z.array(z.string()).optional(),
   })
-  .superRefine(({ type, options, min, max }, ctx) => {
-    if (WithMultipleChoices.has(type as FieldType)) {
+  .superRefine(({ type, options, minLength, maxLength }, ctx) => {
+    if (MultipleOptionField.has(type as FieldType)) {
       // TODO: Fix validation and clean up
       // - Should have no repeting options
       // - Should have > 2 options
@@ -83,16 +83,16 @@ const FormSchema = z
       }
     }
 
-    if (WithMinMax.has(type as FieldType)) {
-      if (!min || !max) {
+    if (TextFieldType.has(type as FieldType)) {
+      if (!minLength || !maxLength) {
         ctx.addIssue({
-          path: ["min"],
+          path: ["minLength"],
           code: z.ZodIssueCode.custom,
           message: "Min and Max are required",
         });
-      } else if (Number(min) >= Number(max)) {
+      } else if (Number(minLength) >= Number(maxLength)) {
         ctx.addIssue({
-          path: ["max"],
+          path: ["maxLength"],
           code: z.ZodIssueCode.custom,
           message: "Max must be greater than Min",
         });
@@ -100,22 +100,22 @@ const FormSchema = z
     }
   });
 
-type FormValues = z.infer<typeof FormSchema>;
+type AddFieldDialogFormValues = z.infer<typeof FormSchema>;
 
 interface AddFieldDialogProps {
-  handleFormSubmit: (values: FormValues) => void;
+  handleFormSubmit: (values: FieldConfig) => void;
 }
 
 function AddFieldDialog(props: AddFieldDialogProps) {
   const { handleFormSubmit } = props;
 
-  const form = useForm<FormValues>({
+  const form = useForm<AddFieldDialogFormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       label: "",
       description: "",
-      min: "",
-      max: "",
+      minLength: 5,
+      maxLength: 10,
       type: FieldTypeEnum.Combobox,
       required: false,
       options: [""],
@@ -132,37 +132,47 @@ function AddFieldDialog(props: AddFieldDialogProps) {
   } = form;
 
   const rawType = watch("type");
-  const type: FieldType | undefined = Object.values(FieldTypeEnum).includes(
+  const type: FieldType = Object.values(FieldTypeEnum).includes(
     rawType as FieldType
   )
     ? (rawType as FieldType)
-    : undefined;
+    : "input";
+
   const options = watch("options");
 
-  const processFormSubmit = (data: FormValues) => {
-    if (WithMinMax.has(type as FieldType)) {
+  const processFormSubmit = (data: AddFieldDialogFormValues) => {
+    // TODO: Add required in FieldConfig
+    const { label, minLength, maxLength, required } = data;
+    const name = label
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 10);
+
+    if (type === FieldTypeEnum.Input || type === FieldTypeEnum.Textarea) {
       handleFormSubmit({
-        ...data,
-        options: undefined,
+        type,
+        label,
+        name,
+        minLength,
+        maxLength,
       });
     }
-    if (WithMultipleChoices.has(type as FieldType)) {
-      handleFormSubmit({
-        ...data,
-        min: undefined,
-        max: undefined,
-      });
+    if (MultipleOptionField.has(type as FieldType)) {
+      // handleFormSubmit({
+      //   ...data,
+      //   min: undefined,
+      //   max: undefined,
+      // });
     }
   };
-
   useEffect(() => {
-    if (WithMinMax.has(type)) {
-      setValue("options", [""]);
+    if (TextFieldType.has(type)) {
+      setValue("options", undefined);
       return;
     }
-    if (WithMultipleChoices.has(type)) {
-      setValue("min", "");
-      setValue("max", "");
+    if (MultipleOptionField.has(type)) {
+      setValue("minLength", undefined);
+      setValue("maxLength", undefined);
       return;
     }
   }, [type, setValue]);
@@ -205,25 +215,25 @@ function AddFieldDialog(props: AddFieldDialogProps) {
               label="Description"
               error={errors.description?.message}
             />
-            {WithMinMax.has(type) && (
-              <div className="flex flex-row gap-2 items-st">
+            {TextFieldType.has(type) && (
+              <div className="flex flex-row gap-2 items-start">
                 <InputField
                   control={control}
-                  name="min"
+                  name="minLength"
                   label="Min"
                   type="number"
-                  error={errors.min?.message}
+                  error={errors.minLength?.message}
                 />
                 <InputField
                   control={control}
-                  name="max"
+                  name="maxLength"
                   label="Max"
                   type="number"
-                  error={errors.max?.message}
+                  error={errors.maxLength?.message}
                 />
               </div>
             )}
-            {WithMultipleChoices.has(type) && (
+            {MultipleOptionField.has(type) && (
               <FormField
                 control={control}
                 name="options"
