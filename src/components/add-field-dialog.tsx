@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { FieldTypeEnum, type FieldType } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
+import { FieldTypeEnum, type FieldType } from "../types";
 
 const WithMultipleChoices = new Set<FieldType | undefined>([
   FieldTypeEnum.Combobox,
@@ -65,16 +65,16 @@ const FormSchema = z
     required: z.boolean(),
     min: z.string().optional(),
     max: z.string().optional(),
-    options: z.array(z.string()),
+    options: z.array(z.string()).optional(),
   })
   .superRefine(({ type, options, min, max }, ctx) => {
     if (WithMultipleChoices.has(type as FieldType)) {
       // TODO: Fix validation and clean up
       // - Should have no repeting options
       // - Should have > 2 options
-      const cleaned = options.map((opt) => opt?.trim());
+      const cleaned = options?.map((opt) => opt?.trim());
 
-      if (cleaned.length < 2) {
+      if (cleaned && cleaned.length < 2) {
         ctx.addIssue({
           path: ["options"],
           code: z.ZodIssueCode.custom,
@@ -102,7 +102,13 @@ const FormSchema = z
 
 type FormValues = z.infer<typeof FormSchema>;
 
-function AddFieldDialog() {
+interface AddFieldDialogProps {
+  handleFormSubmit: (values: FormValues) => void;
+}
+
+function AddFieldDialog(props: AddFieldDialogProps) {
+  const { handleFormSubmit } = props;
+
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -131,9 +137,22 @@ function AddFieldDialog() {
   )
     ? (rawType as FieldType)
     : undefined;
+  const options = watch("options");
 
-  const handleFormSubmit = (data: FormValues) => {
-    console.log(data);
+  const processFormSubmit = (data: FormValues) => {
+    if (WithMinMax.has(type as FieldType)) {
+      handleFormSubmit({
+        ...data,
+        options: undefined,
+      });
+    }
+    if (WithMultipleChoices.has(type as FieldType)) {
+      handleFormSubmit({
+        ...data,
+        min: undefined,
+        max: undefined,
+      });
+    }
   };
 
   useEffect(() => {
@@ -165,7 +184,7 @@ function AddFieldDialog() {
         <FormProvider {...form}>
           <form
             className="flex flex-col gap-3"
-            onSubmit={handleSubmit(handleFormSubmit)}
+            onSubmit={handleSubmit(processFormSubmit)}
           >
             <SelectField
               control={control}
@@ -211,41 +230,42 @@ function AddFieldDialog() {
                 render={() => (
                   <FormItem className="flex flex-col justify-center">
                     <FormLabel>Options</FormLabel>
-                    {watch("options")?.map((opt, index) => (
-                      <div key={index} className="flex flex-col gap-1">
-                        <div className="flex flex-row gap-1">
-                          <FormControl>
-                            <Input
-                              {...register(`options.${index}` as const)}
-                              placeholder="Enter option"
-                            />
-                          </FormControl>
-                          {watch("options")?.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() =>
-                                setValue(
-                                  "options",
-                                  watch("options").filter((_, i) => i !== index)
-                                )
-                              }
-                            >
-                              <Trash2 />
-                            </Button>
-                          )}
+                    {options &&
+                      options.map((opt, index) => (
+                        <div key={index} className="flex flex-col gap-1">
+                          <div className="flex flex-row gap-1">
+                            <FormControl>
+                              <Input
+                                {...register(`options.${index}` as const)}
+                                placeholder="Enter option"
+                              />
+                            </FormControl>
+                            {options && options.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() =>
+                                  setValue(
+                                    "options",
+                                    options.filter((_, i) => i !== index)
+                                  )
+                                }
+                              >
+                                <Trash2 />
+                              </Button>
+                            )}
+                          </div>
+                          <FormMessage>
+                            {errors.options?.[index]?.message}
+                          </FormMessage>
                         </div>
-                        <FormMessage>
-                          {errors.options?.[index]?.message}
-                        </FormMessage>
-                      </div>
-                    ))}
+                      ))}
                     <Button
                       type="button"
                       className="w-fit rounded-2xl bg-gray-100 border-0 self-center"
                       variant="outline"
                       onClick={() =>
-                        setValue("options", [...(watch("options") ?? []), ""])
+                        setValue("options", [...(options ?? []), ""])
                       }
                     >
                       + Add another option
