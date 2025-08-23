@@ -28,7 +28,7 @@ import { Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import { FieldTypeEnum, type FieldConfig, type FieldType } from "../types";
+import type { FieldConfig, FieldType } from "../types";
 
 const FieldTypes: FieldType[] = [
   "input",
@@ -104,7 +104,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       description: "",
       minLength: 5,
       maxLength: 10,
-      type: FieldTypeEnum.Combobox,
+      type: "input",
       required: false,
       options: [""],
     },

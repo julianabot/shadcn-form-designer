@@ -19,18 +19,16 @@ type Option = {
   value: string;
 };
 
-const FieldTypeEnum = {
-  Input: "input",
-  Textarea: "textarea",
-  File: "file",
-  Combobox: "combobox",
-  Radio: "radio",
-  Date: "date",
-  Select: "select",
-  Switch: "switch",
-} as const;
-
-type FieldType = (typeof FieldTypeEnum)[keyof typeof FieldTypeEnum];
+type FieldType =
+  | "input"
+  | "textarea"
+  | "file"
+  | "combobox"
+  | "radio"
+  | "date"
+  | "select"
+  | "switch"
+  | "checkbox";
 
 type BaseField = CommonFieldMeta & {
   type: FieldType;
@@ -48,7 +46,7 @@ type BooleanField = BaseField & {
   type: "checkbox" | "switch";
 };
 
-type SingleChoiceField = BaseField & {
+type MultipleOptionField = BaseField & {
   type: "radio" | "select" | "combobox";
   options: Option[];
 };
@@ -68,7 +66,7 @@ type FileField = BaseField & {
 type FieldConfig =
   | TextField
   | BooleanField
-  | SingleChoiceField
+  | MultipleOptionField
   | DateField
   | FileField;
 
@@ -76,8 +74,6 @@ type FieldWithValidation<T extends ZodTypeAny> = FieldConfig & {
   name: string;
   validation: T;
 };
-
-export { FieldTypeEnum };
 
 export type {
   BaseField,
@@ -88,7 +84,7 @@ export type {
   FieldType,
   FieldWithValidation,
   FileField,
+  MultipleOptionField,
   Option,
-  SingleChoiceField,
   TextField,
 };
