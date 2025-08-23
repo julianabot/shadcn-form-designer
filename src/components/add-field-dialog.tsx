@@ -130,25 +130,12 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       required,
       options: tempOptions,
     } = data;
-    // TODO: Find something to make this unique
-    const name = label
-      .replace(/[^a-zA-Z0-9 ]/g, "")
-      .split(" ")
-      .map((word, index) =>
-        index === 0
-          ? word.toLowerCase()
-          : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      )
-      .join("")
-      .slice(0, 10);
 
     const basePayload: {
       label: string;
-      name: string;
       required: boolean;
     } = {
       label,
-      name,
       required,
     };
 
@@ -181,7 +168,6 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       handleFormSubmit({
         type,
         label,
-        name,
         required,
       });
     }
