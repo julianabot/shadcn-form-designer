@@ -1,11 +1,11 @@
 import type { Control, FieldPath, FieldValues, Message } from "react-hook-form";
-import type { z, ZodTypeAny } from "zod";
+import type { ZodTypeAny } from "zod";
 
 type CommonFieldMeta = {
-  name: string;
   label: string;
   description?: string;
 };
+
 type FieldProps<TFieldValues extends FieldValues> = CommonFieldMeta & {
   control: Control<TFieldValues>;
   name: FieldPath<TFieldValues>;
@@ -32,38 +32,34 @@ const FieldTypeEnum = {
 
 type FieldType = (typeof FieldTypeEnum)[keyof typeof FieldTypeEnum];
 
-type BaseField<T extends ZodTypeAny> = CommonFieldMeta & {
+type BaseField = CommonFieldMeta & {
   type: FieldType;
-  // TODO: Remove this field, since we will have a different processing for this
-  validation?: T;
   required?: boolean;
 };
 
-type TextField = BaseField<z.ZodString> & {
+type TextField = BaseField & {
   type: "input" | "textarea";
   placeholder?: string;
   minLength?: number;
   maxLength?: number;
 };
 
-type BooleanField = BaseField<z.ZodBoolean> & {
+type BooleanField = BaseField & {
   type: "checkbox" | "switch";
 };
 
-type SingleChoiceField<Opt extends string = string> = BaseField<
-  z.ZodEnum<[Opt, ...Opt[]]>
-> & {
+type SingleChoiceField = BaseField & {
   type: "radio" | "select" | "combobox";
   options: Option[];
 };
 
-type DateField = BaseField<z.ZodDate> & {
+type DateField = BaseField & {
   type: "date";
   minDate?: Date;
   maxDate?: Date;
 };
 
-type FileField = BaseField<z.ZodType<File>> & {
+type FileField = BaseField & {
   type: "file";
   accept?: string;
   maxSizeMB?: number;
@@ -76,6 +72,11 @@ type FieldConfig =
   | DateField
   | FileField;
 
+type FieldWithValidation<T extends ZodTypeAny> = FieldConfig & {
+  name: string;
+  validation: T;
+};
+
 export { FieldTypeEnum };
 
 export type {
@@ -85,6 +86,7 @@ export type {
   FieldConfig,
   FieldProps,
   FieldType,
+  FieldWithValidation,
   FileField,
   Option,
   SingleChoiceField,

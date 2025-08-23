@@ -1,7 +1,7 @@
-import type { FieldConfig } from "@/types"; // your type definitions
-import { z } from "zod";
+import type { FieldWithValidation } from "@/types";
+import { z, type ZodTypeAny } from "zod";
 
-export const FormConfig: FieldConfig[] = [
+export const FormConfig: FieldWithValidation<ZodTypeAny>[] = [
   {
     type: "input",
     name: "fullName",

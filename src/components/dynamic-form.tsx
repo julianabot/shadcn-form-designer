@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
-import type { FieldConfig } from "../types";
+import { z, type ZodTypeAny } from "zod";
+import type { FieldWithValidation } from "../types";
 import { buildSchema } from "../utils";
 import {
   ComboboxField,
@@ -16,7 +16,11 @@ import {
 import { Button } from "./ui";
 
 // TODO: Fix rendering of component types
-export function DynamicForm({ config }: { config: FieldConfig[] }) {
+export function DynamicForm({
+  config,
+}: {
+  config: FieldWithValidation<ZodTypeAny>[];
+}) {
   const schema = buildSchema(config);
   type FormValues = z.infer<typeof schema>;
 
