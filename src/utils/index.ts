@@ -59,7 +59,7 @@ function buildValidation(field: FieldConfig): FieldWithValidation<ZodTypeAny> {
     }
 
     if (maxLength) {
-      validation = validation.min(maxLength, {
+      validation = validation.max(maxLength, {
         message: `Must be at least ${maxLength} characters`,
       });
     }
@@ -129,6 +129,7 @@ function toCamelCase(label: string): string {
 }
 export {
   buildSchema,
+  buildValidation,
   isDateFieldType,
   isFieldType,
   isFileFieldType,
