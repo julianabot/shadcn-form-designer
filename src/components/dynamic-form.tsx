@@ -45,7 +45,7 @@ export function DynamicForm({
         className="w-full max-w-2xl flex flex-col gap-5"
       >
         {config.map((field) => {
-          const { type, name } = field;
+          const { type, name, description } = field;
           const errorMessage = errors?.[field.name]?.message as
             | string
             | undefined;
@@ -55,6 +55,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
@@ -66,6 +67,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
@@ -77,6 +79,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
@@ -88,6 +91,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
@@ -99,6 +103,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
@@ -110,6 +115,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
@@ -121,6 +127,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
@@ -132,6 +139,7 @@ export function DynamicForm({
                 control={control}
                 key={name}
                 error={errorMessage}
+                description={description}
                 {...field}
               />
             );
