@@ -25,10 +25,16 @@ import {
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import type { FieldConfig, FieldType } from "../types";
+
+// TODO:
+// - Fix validation of options (no repeating options)
+// - Clean up code
+// - Fix date field type
+// - Input and Textarea field are always required
 
 const FieldTypes: FieldType[] = [
   "input",
@@ -57,9 +63,6 @@ const FormSchema = z
   })
   .superRefine(({ type, options, minLength, maxLength }, ctx) => {
     if (isMultipleOptionFieldType(type)) {
-      // TODO: Fix validation and clean up
-      // - Should have no repeting options
-      // - Should have > 2 options
       const cleaned = options?.map((opt) => opt?.trim());
 
       if (cleaned && cleaned.length < 2) {
@@ -95,6 +98,7 @@ interface AddFieldDialogProps {
 }
 
 function AddFieldDialog(props: AddFieldDialogProps) {
+  const [open, setOpen] = useState(false);
   const { handleFormSubmit } = props;
 
   const form = useForm<AddFieldDialogFormValues>({
@@ -117,26 +121,28 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     register,
     handleSubmit,
     setValue,
+    reset,
   } = form;
 
   const type = watch("type");
   const options = watch("options");
 
   const processFormSubmit = (data: AddFieldDialogFormValues) => {
+    setOpen(false);
+    reset();
     const {
       label,
       minLength,
       maxLength,
       required,
+      description,
       options: tempOptions,
     } = data;
 
-    const basePayload: {
-      label: string;
-      required: boolean;
-    } = {
+    const basePayload = {
       label,
       required,
+      description,
     };
 
     if (isInputFieldType(type)) {
@@ -186,7 +192,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
   }, [type, setValue]);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         className={cn(
           buttonVariants({ variant: "outline", className: "rounded-4xl" })
@@ -252,7 +258,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
                   <FormItem className="flex flex-col justify-center">
                     <FormLabel>Options</FormLabel>
                     {options &&
-                      options.map((opt, index) => (
+                      options.map((_, index) => (
                         <div key={index} className="flex flex-col gap-1">
                           <div className="flex flex-row gap-1">
                             <FormControl>

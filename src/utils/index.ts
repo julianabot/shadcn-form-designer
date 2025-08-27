@@ -38,8 +38,8 @@ function isFieldType(type: string): type is FieldType {
 }
 
 function buildValidation(field: FieldConfig): FieldWithValidation<ZodTypeAny> {
-  const { type, required, label } = field;
-  const name = toCamelCase(label);
+  const { type, required } = field;
+  const name = generateGUID();
   const baseField = {
     ...field,
     name,
@@ -116,17 +116,25 @@ function buildValidation(field: FieldConfig): FieldWithValidation<ZodTypeAny> {
   };
 }
 
-function toCamelCase(label: string): string {
-  return label
-    .replace(/[^a-zA-Z0-9 ]/g, "")
-    .split(" ")
-    .map((word, index) =>
-      index === 0
-        ? word.toLowerCase()
-        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    )
-    .join("");
+function generateGUID(): string {
+  const timestamp = Date.now().toString(16);
+  const random = Array.from({ length: 16 }, () =>
+    Math.floor(Math.random() * 16).toString(16)
+  ).join("");
+  return (
+    timestamp.padStart(12, "0").slice(-12).slice(0, 8) +
+    "-" +
+    random.slice(0, 4) +
+    "-" +
+    random.slice(4, 8) +
+    "-" +
+    random.slice(8, 12) +
+    "-" +
+    random.slice(12, 16) +
+    timestamp.padEnd(12, "0").slice(0, 8)
+  );
 }
+
 export {
   buildSchema,
   buildValidation,

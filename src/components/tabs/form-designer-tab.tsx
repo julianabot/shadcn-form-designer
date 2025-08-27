@@ -11,6 +11,7 @@ export function FormDesigner() {
 
   const handleFormSubmit = (values: FieldConfig) => {
     setFields((prev) => [...prev, buildValidation(values)]);
+    console.log("New Field Added:", values);
   };
 
   return (
