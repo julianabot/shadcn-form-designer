@@ -48,8 +48,11 @@ function buildValidation(field: FieldConfig): FieldWithValidation<ZodTypeAny> {
   if (type === "input" || type === "textarea") {
     const { minLength, maxLength } = field;
     let validation = z.string();
-    if (required) {
-      validation = validation.min(1, "This field is required.");
+    if (!required) {
+      return {
+        ...baseField,
+        validation: validation.optional(),
+      };
     }
 
     if (minLength) {

@@ -34,7 +34,6 @@ import type { FieldConfig, FieldType } from "../types";
 // - Fix validation of options (no repeating options)
 // - Clean up code
 // - Fix date field type
-// - Input and Textarea field are always required
 
 const FieldTypes: FieldType[] = [
   "input",
@@ -57,8 +56,8 @@ const FormSchema = z
     label: z.string().min(1, "Name is required"),
     description: z.string().optional(),
     required: z.boolean(),
-    minLength: z.number().optional(),
-    maxLength: z.number().optional(),
+    minLength: z.string().optional(),
+    maxLength: z.string().optional(),
     options: z.array(z.string()).optional(),
   })
   .superRefine(({ type, options, minLength, maxLength }, ctx) => {
@@ -106,8 +105,8 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     defaultValues: {
       label: "",
       description: "",
-      minLength: 5,
-      maxLength: 10,
+      minLength: "5",
+      maxLength: "100",
       type: "input",
       required: false,
       options: [""],
@@ -149,8 +148,8 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       handleFormSubmit({
         ...basePayload,
         type,
-        minLength,
-        maxLength,
+        minLength: minLength ? Number(minLength) : undefined,
+        maxLength: maxLength ? Number(maxLength) : undefined,
       });
     }
 
@@ -190,6 +189,12 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       return;
     }
   }, [type, setValue]);
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -238,14 +243,12 @@ function AddFieldDialog(props: AddFieldDialogProps) {
                   control={control}
                   name="minLength"
                   label="Min"
-                  type="number"
                   error={errors.minLength?.message}
                 />
                 <InputField
                   control={control}
                   name="maxLength"
                   label="Max"
-                  type="number"
                   error={errors.maxLength?.message}
                 />
               </div>
