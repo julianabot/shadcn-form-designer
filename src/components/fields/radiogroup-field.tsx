@@ -10,19 +10,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps, Option } from "../../types";
-
-interface RadioGroupFieldProps<TFieldValues extends FieldValues>
-  extends FieldProps<TFieldValues> {
-  options: Option[];
-}
+import type { MultipleOptionFieldProps } from "../../types";
 
 export function RadioGroupField<TFieldValues extends FieldValues>({
   control,
   name,
   label,
   options,
-}: RadioGroupFieldProps<TFieldValues>) {
+}: MultipleOptionFieldProps<TFieldValues>) {
   return (
     <FormField
       control={control}

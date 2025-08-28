@@ -14,6 +14,11 @@ type FieldProps<TFieldValues extends FieldValues> = CommonFieldMeta & {
   className?: string;
 };
 
+type MultipleOptionFieldProps<TFieldValues extends FieldValues> =
+  FieldProps<TFieldValues> & {
+    options: Option[];
+  };
+
 type Option = {
   label: string;
   value: string;
@@ -30,38 +35,38 @@ type FieldType =
   | "switch"
   | "checkbox";
 
-type BaseField = CommonFieldMeta & {
+interface BaseField extends CommonFieldMeta {
   type: FieldType;
   required?: boolean;
-};
+}
 
-type TextField = BaseField & {
+interface TextField extends BaseField {
   type: "input" | "textarea";
   placeholder?: string;
   minLength?: number;
   maxLength?: number;
-};
+}
 
-type BooleanField = BaseField & {
+interface BooleanField extends BaseField {
   type: "checkbox" | "switch";
-};
+}
 
-type MultipleOptionField = BaseField & {
+interface MultipleOptionField extends BaseField {
   type: "radio" | "select" | "combobox";
   options: Option[];
-};
+}
 
-type DateField = BaseField & {
+interface DateField extends BaseField {
   type: "date";
   minDate?: Date;
   maxDate?: Date;
-};
+}
 
-type FileField = BaseField & {
+interface FileField extends BaseField {
   type: "file";
   accept?: string;
   maxSizeMB?: number;
-};
+}
 
 type FieldConfig =
   | TextField
@@ -85,6 +90,7 @@ export type {
   FieldWithValidation,
   FileField,
   MultipleOptionField,
+  MultipleOptionFieldProps,
   Option,
   TextField,
 };

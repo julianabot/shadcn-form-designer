@@ -14,15 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps, Option } from "../../types";
-
-interface SelectFieldProps<TFieldValues extends FieldValues>
-  extends FieldProps<TFieldValues> {
-  options: Option[];
-}
+import type { MultipleOptionFieldProps } from "../../types";
 
 function SelectField<TFieldValues extends FieldValues>(
-  props: SelectFieldProps<TFieldValues>
+  props: MultipleOptionFieldProps<TFieldValues>
 ) {
   const {
     control,
