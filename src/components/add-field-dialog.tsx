@@ -105,7 +105,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     defaultValues: {
       label: "",
       description: "",
-      minLength: "5",
+      minLength: "0",
       maxLength: "100",
       type: "input",
       required: false,

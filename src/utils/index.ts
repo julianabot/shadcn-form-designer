@@ -48,12 +48,6 @@ function buildValidation(field: FieldConfig): FieldWithValidation<ZodTypeAny> {
   if (type === "input" || type === "textarea") {
     const { minLength, maxLength } = field;
     let validation = z.string();
-    if (!required) {
-      return {
-        ...baseField,
-        validation: validation.optional(),
-      };
-    }
 
     if (minLength) {
       validation = validation.min(minLength, {
@@ -63,13 +57,15 @@ function buildValidation(field: FieldConfig): FieldWithValidation<ZodTypeAny> {
 
     if (maxLength) {
       validation = validation.max(maxLength, {
-        message: `Must be at least ${maxLength} characters`,
+        message: `Must be at most ${maxLength} characters`,
       });
     }
 
     return {
       ...baseField,
-      validation,
+      validation: required
+        ? validation.min(1, { message: "This field is required" })
+        : validation.optional(),
     };
   }
 
