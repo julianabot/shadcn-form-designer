@@ -80,6 +80,10 @@ type FieldWithValidation<T extends ZodTypeAny> = FieldConfig & {
   validation: T;
 };
 
+type FieldWithValue<T extends FieldValues> = FieldConfig & {
+  value: T;
+};
+
 export type {
   BaseField,
   BooleanField,
@@ -88,6 +92,7 @@ export type {
   FieldProps,
   FieldType,
   FieldWithValidation,
+  FieldWithValue,
   FileField,
   MultipleOptionField,
   MultipleOptionFieldProps,

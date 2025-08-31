@@ -101,12 +101,12 @@ const FormSchema = z
 type AddFieldDialogFormValues = z.infer<typeof FormSchema>;
 
 interface AddFieldDialogProps {
-  handleFormSubmit: (values: FieldConfig) => void;
+  handleAddField: (values: FieldConfig) => void;
 }
 
 function AddFieldDialog(props: AddFieldDialogProps) {
   const [open, setOpen] = useState(false);
-  const { handleFormSubmit } = props;
+  const { handleAddField } = props;
 
   const form = useForm<AddFieldDialogFormValues>({
     resolver: zodResolver(FormSchema),
@@ -153,7 +153,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     };
 
     if (isInputFieldType(type)) {
-      handleFormSubmit({
+      handleAddField({
         ...basePayload,
         type,
         minLength: minLength ? Number(minLength) : undefined,
@@ -162,7 +162,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     }
 
     if (isMultipleOptionFieldType(type)) {
-      handleFormSubmit({
+      handleAddField({
         ...basePayload,
         type,
         options: tempOptions
@@ -178,7 +178,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     }
 
     if (isFileFieldType(type) || isDateFieldType(type)) {
-      handleFormSubmit({
+      handleAddField({
         type,
         label,
         required,

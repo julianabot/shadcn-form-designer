@@ -18,25 +18,45 @@ import { Button } from "./ui";
 // TODO: Fix rendering of component types
 export function DynamicForm({
   config,
+  onSubmitForm,
+  isBuilderMode = false,
 }: {
   config: FieldWithValidation<ZodTypeAny>[];
+  onSubmitForm: (
+    data:
+      | z.infer<ReturnType<typeof buildSchema>>
+      | FieldWithValidation<ZodTypeAny>[],
+    isBuilderMode: boolean
+  ) => void;
+  isBuilderMode?: boolean;
 }) {
   const schema = buildSchema(config);
   type FormValues = z.infer<typeof schema>;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {} as FormValues,
+    defaultValues: Object.fromEntries(
+      Object.entries(schema.shape).map(([key, value]) => {
+        if (value instanceof z.ZodString) {
+          return [key, "default"];
+        }
+        return [key, undefined];
+      })
+    ) as FormValues,
   });
-
-  const onSubmit = (data: FormValues) => {
-    console.log("Submitted:", data);
-  };
 
   const {
     control,
     formState: { errors },
   } = form;
+
+  const onSubmit = (data: FormValues) => {
+    if (isBuilderMode) {
+      onSubmitForm(config, isBuilderMode);
+    } else {
+      onSubmitForm(data, isBuilderMode);
+    }
+  };
 
   return (
     <FormProvider {...form}>
