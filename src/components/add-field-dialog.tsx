@@ -8,14 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   isDateFieldType,
@@ -24,11 +16,11 @@ import {
   isMultipleOptionFieldType,
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import type { FieldConfig, FieldType } from "../types";
+import { MultipleOptionField } from "./fields/multipleoption-field";
 
 // TODO:
 // - Fix validation of options (no repeating options)
@@ -107,7 +99,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       description: "",
       minLength: "0",
       maxLength: "100",
-      type: "input",
+      type: "combobox",
       required: false,
       options: [""],
     },
@@ -196,6 +188,10 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     }
   }, [open, reset]);
 
+  useEffect(() => {
+    console.log("errors", errors);
+  }, [errors]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
@@ -254,54 +250,16 @@ function AddFieldDialog(props: AddFieldDialogProps) {
               </div>
             )}
             {isMultipleOptionFieldType(type) && (
-              <FormField
+              <MultipleOptionField
                 control={control}
                 name="options"
-                render={() => (
-                  <FormItem className="flex flex-col justify-center">
-                    <FormLabel>Options</FormLabel>
-                    {options &&
-                      options.map((_, index) => (
-                        <div key={index} className="flex flex-col gap-1">
-                          <div className="flex flex-row gap-1">
-                            <FormControl>
-                              <Input
-                                {...register(`options.${index}` as const)}
-                                placeholder="Enter option"
-                              />
-                            </FormControl>
-                            {options && options.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() =>
-                                  setValue(
-                                    "options",
-                                    options.filter((_, i) => i !== index)
-                                  )
-                                }
-                              >
-                                <Trash2 />
-                              </Button>
-                            )}
-                          </div>
-                          <FormMessage>
-                            {errors.options?.[index]?.message}
-                          </FormMessage>
-                        </div>
-                      ))}
-                    <Button
-                      type="button"
-                      className="w-fit rounded-2xl bg-gray-100 border-0 self-center"
-                      variant="outline"
-                      onClick={() =>
-                        setValue("options", [...(options ?? []), ""])
-                      }
-                    >
-                      + Add another option
-                    </Button>
-                  </FormItem>
-                )}
+                label="Options"
+                options={
+                  options ? options.map((s) => ({ label: s, value: s })) : []
+                }
+                error={errors.options?.root?.message}
+                register={register}
+                setValue={setValue}
               />
             )}
             <SwitchField control={control} name="required" label="Required" />
