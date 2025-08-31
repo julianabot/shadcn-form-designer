@@ -23,8 +23,6 @@ import type { FieldConfig, FieldType } from "../types";
 import { MultipleOptionField } from "./fields/multipleoption-field";
 
 // TODO:
-// - Fix validation of options (no repeating options)
-// - Clean up code
 // - Fix date field type
 
 const FieldTypes: FieldType[] = [
@@ -63,6 +61,16 @@ const FormSchema = z
           message: "At least 2 options are required",
         });
       }
+
+      const isNoDuplicates = cleaned?.length === new Set(cleaned).size;
+
+      if (!isNoDuplicates) {
+        ctx.addIssue({
+          path: ["options"],
+          code: z.ZodIssueCode.custom,
+          message: "Options must be unique",
+        });
+      }
     }
 
     if (isInputFieldType(type)) {
@@ -80,7 +88,11 @@ const FormSchema = z
         });
       }
     }
-  });
+  })
+  .transform((values) => ({
+    ...values,
+    options: values.options?.filter(Boolean),
+  }));
 
 type AddFieldDialogFormValues = z.infer<typeof FormSchema>;
 

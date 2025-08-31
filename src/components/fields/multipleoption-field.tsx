@@ -61,7 +61,9 @@ function MultipleOptionField<TFieldValues extends FieldValues>(
                   </Button>
                 )}
               </div>
-              {error && <p className="text-destructive text-sm">{error}</p>}
+              {error && options.length - 1 === index && (
+                <p className="text-destructive text-sm">{error}</p>
+              )}
             </div>
           ))}
           <Button
