@@ -1,10 +1,9 @@
+import { AddFieldDialog, DynamicForm } from "@/components";
 import type { FieldConfig, FieldWithValidation } from "@/types";
 import { buildValidation } from "@/utils";
 import { useState } from "react";
 import type { ZodTypeAny } from "zod";
 import { FormConfig } from "../../data";
-import { AddFieldDialog } from "../add-field-dialog";
-import { DynamicForm } from "../dynamic-form";
 
 export function FormDesigner() {
   const [fields, setFields] = useState<FieldWithValidation<ZodTypeAny>[]>([]);
