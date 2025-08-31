@@ -17,15 +17,15 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 
-interface MultipleOptionFieldPropsFixed<TFieldValues extends FieldValues>
+interface MultiOptionInputFieldPropsExtended<TFieldValues extends FieldValues>
   extends MultipleOptionFieldProps<TFieldValues> {
   register: UseFormRegister<TFieldValues>;
   setValue: UseFormSetValue<TFieldValues>;
   control: Control<TFieldValues>;
 }
 
-function MultipleOptionField<TFieldValues extends FieldValues>(
-  props: MultipleOptionFieldPropsFixed<TFieldValues>
+function MultiOptionInputField<TFieldValues extends FieldValues>(
+  props: MultiOptionInputFieldPropsExtended<TFieldValues>
 ) {
   const { control, name, label, options, error, register, setValue } = props;
   return (
@@ -89,4 +89,4 @@ function MultipleOptionField<TFieldValues extends FieldValues>(
   );
 }
 
-export { MultipleOptionField };
+export { MultiOptionInputField };

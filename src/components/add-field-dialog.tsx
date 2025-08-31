@@ -1,4 +1,9 @@
-import { InputField, SelectField, SwitchField } from "@/components/fields";
+import {
+  InputField,
+  MultiOptionInputField,
+  SelectField,
+  SwitchField,
+} from "@/components/fields";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,7 +25,6 @@ import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import type { FieldConfig, FieldType } from "../types";
-import { MultipleOptionField } from "./fields/multipleoption-field";
 
 // TODO:
 // - Fix date field type
@@ -111,7 +115,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       description: "",
       minLength: "0",
       maxLength: "100",
-      type: "combobox",
+      type: "input",
       required: false,
       options: [""],
     },
@@ -258,7 +262,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
               </div>
             )}
             {isMultipleOptionFieldType(type) && (
-              <MultipleOptionField
+              <MultiOptionInputField
                 control={control}
                 name="options"
                 label="Options"
