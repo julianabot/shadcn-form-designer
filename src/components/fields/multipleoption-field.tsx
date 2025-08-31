@@ -9,7 +9,6 @@ import {
 import { Input } from "@/components/ui/input";
 import type { MultipleOptionFieldProps } from "@/types";
 import { Trash2 } from "lucide-react";
-import { useEffect } from "react";
 import type {
   Control,
   FieldValues,
@@ -29,10 +28,6 @@ function MultipleOptionField<TFieldValues extends FieldValues>(
   props: MultipleOptionFieldPropsFixed<TFieldValues>
 ) {
   const { control, name, label, options, error, register, setValue } = props;
-
-  useEffect(() => {
-    console.log("ERRORS inside MultipleOptionField", error);
-  }, [error]);
   return (
     <FormField
       control={control}

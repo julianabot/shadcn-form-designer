@@ -188,10 +188,6 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     }
   }, [open, reset]);
 
-  useEffect(() => {
-    console.log("errors", errors);
-  }, [errors]);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
