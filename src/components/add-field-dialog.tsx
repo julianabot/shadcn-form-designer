@@ -28,6 +28,7 @@ import type { FieldConfig, FieldType } from "../types";
 
 // TODO:
 // - Fix date field type
+// - When unselecting a multi option field, returns an error
 
 const FieldTypes: FieldType[] = [
   "input",
