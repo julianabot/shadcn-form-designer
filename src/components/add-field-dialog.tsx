@@ -14,6 +14,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { getFieldDefinitions } from "@/registry";
+import type { FieldConfig } from "@/types";
 import {
   isDateFieldType,
   isFileFieldType,
@@ -21,93 +23,89 @@ import {
   isMultipleOptionFieldType,
 } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import type { FieldConfig, FieldType } from "../types";
 
 // TODO:
 // - Fix date field type
 // - When unselecting a multi option field, returns an error
 
-const FieldTypes: FieldType[] = [
-  "input",
-  "textarea",
-  "file",
-  "combobox",
-  "radio",
-  "date",
-  "select",
-  "switch",
-];
-
-const FormSchema = z
-  .object({
-    type: z
-      .string({ required_error: "This is a required field" })
-      .refine((val) => FieldTypes.includes(val as FieldType), {
-        message: "Please select a valid field type",
-      }),
-    label: z.string().min(1, "Name is required"),
-    description: z.string().optional(),
-    required: z.boolean(),
-    minLength: z.string().optional(),
-    maxLength: z.string().optional(),
-    options: z.array(z.string()).optional(),
-  })
-  .superRefine(({ type, options, minLength, maxLength }, ctx) => {
-    if (isMultipleOptionFieldType(type)) {
-      const cleaned = options?.map((opt) => opt?.trim());
-
-      if (cleaned && cleaned.length < 2) {
-        ctx.addIssue({
-          path: ["options"],
-          code: z.ZodIssueCode.custom,
-          message: "At least 2 options are required",
-        });
-      }
-
-      const isNoDuplicates = cleaned?.length === new Set(cleaned).size;
-
-      if (!isNoDuplicates) {
-        ctx.addIssue({
-          path: ["options"],
-          code: z.ZodIssueCode.custom,
-          message: "Options must be unique",
-        });
-      }
-    }
-
-    if (isInputFieldType(type)) {
-      if (!minLength || !maxLength) {
-        ctx.addIssue({
-          path: ["minLength"],
-          code: z.ZodIssueCode.custom,
-          message: "Min and Max are required",
-        });
-      } else if (Number(minLength) >= Number(maxLength)) {
-        ctx.addIssue({
-          path: ["maxLength"],
-          code: z.ZodIssueCode.custom,
-          message: "Max must be greater than Min",
-        });
-      }
-    }
-  })
-  .transform((values) => ({
-    ...values,
-    options: values.options?.filter(Boolean),
-  }));
-
-type AddFieldDialogFormValues = z.infer<typeof FormSchema>;
-
-interface AddFieldDialogProps {
+function AddFieldDialog(props: {
   handleAddField: (values: FieldConfig) => void;
-}
-
-function AddFieldDialog(props: AddFieldDialogProps) {
+}) {
   const [open, setOpen] = useState(false);
   const { handleAddField } = props;
+
+  const fieldDefinitions = useMemo(() => getFieldDefinitions(), []);
+  const fieldTypes = useMemo(
+    () => fieldDefinitions.map((def) => def.type),
+    [fieldDefinitions],
+  );
+
+  const FormSchema = useMemo(
+    () =>
+      z
+        .object({
+          type: z
+            .string({ required_error: "This is a required field" })
+            .refine((val) => fieldTypes.includes(val), {
+              message: "Please select a valid field type",
+            }),
+          label: z.string().min(1, "Name is required"),
+          description: z.string().optional(),
+          required: z.boolean(),
+          minLength: z.string().optional(),
+          maxLength: z.string().optional(),
+          options: z.array(z.string()).optional(),
+        })
+        .superRefine(({ type, options, minLength, maxLength }, ctx) => {
+          if (isMultipleOptionFieldType(type)) {
+            const cleaned = options?.map((opt) => opt?.trim());
+
+            if (cleaned && cleaned.length < 2) {
+              ctx.addIssue({
+                path: ["options"],
+                code: z.ZodIssueCode.custom,
+                message: "At least 2 options are required",
+              });
+            }
+
+            const isNoDuplicates = cleaned?.length === new Set(cleaned).size;
+
+            if (!isNoDuplicates) {
+              ctx.addIssue({
+                path: ["options"],
+                code: z.ZodIssueCode.custom,
+                message: "Options must be unique",
+              });
+            }
+          }
+
+          if (isInputFieldType(type)) {
+            if (!minLength || !maxLength) {
+              ctx.addIssue({
+                path: ["minLength"],
+                code: z.ZodIssueCode.custom,
+                message: "Min and Max are required",
+              });
+            } else if (Number(minLength) >= Number(maxLength)) {
+              ctx.addIssue({
+                path: ["maxLength"],
+                code: z.ZodIssueCode.custom,
+                message: "Max must be greater than Min",
+              });
+            }
+          }
+        })
+        .transform((values) => ({
+          ...values,
+          options: values.options?.filter(Boolean),
+        })),
+    [fieldTypes],
+  );
+
+  type AddFieldDialogFormValues = z.infer<typeof FormSchema>;
 
   const form = useForm<AddFieldDialogFormValues>({
     resolver: zodResolver(FormSchema),
@@ -156,7 +154,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     if (isInputFieldType(type)) {
       handleAddField({
         ...basePayload,
-        type,
+        type: type as "input" | "textarea",
         minLength: minLength ? Number(minLength) : undefined,
         maxLength: maxLength ? Number(maxLength) : undefined,
       });
@@ -165,7 +163,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     if (isMultipleOptionFieldType(type)) {
       handleAddField({
         ...basePayload,
-        type,
+        type: type as "combobox" | "radio" | "select",
         options: tempOptions
           ? tempOptions.map((label) => ({
               label,
@@ -178,9 +176,17 @@ function AddFieldDialog(props: AddFieldDialogProps) {
       });
     }
 
-    if (isFileFieldType(type) || isDateFieldType(type)) {
+    if (isDateFieldType(type)) {
       handleAddField({
-        type,
+        type: "date",
+        label,
+        required,
+      });
+    }
+
+    if (isFileFieldType(type)) {
+      handleAddField({
+        type: "file",
         label,
         required,
       });
@@ -209,7 +215,7 @@ function AddFieldDialog(props: AddFieldDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         className={cn(
-          buttonVariants({ variant: "outline", className: "rounded-4xl" })
+          buttonVariants({ variant: "outline", className: "rounded-4xl" }),
         )}
       >
         + Add New Field
@@ -228,9 +234,9 @@ function AddFieldDialog(props: AddFieldDialogProps) {
               control={control}
               name="type"
               label="Type"
-              options={FieldTypes.map((type) => ({
-                value: type,
-                label: type.charAt(0).toUpperCase() + type.slice(1),
+              options={fieldDefinitions.map((def) => ({
+                value: def.type,
+                label: def.label,
               }))}
               error={errors.type?.message}
             />

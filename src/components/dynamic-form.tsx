@@ -3,19 +3,10 @@ import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z, type ZodTypeAny } from "zod";
 
-import type { FieldWithValidation } from "../types";
-import { buildSchema } from "../utils";
+import { getFieldDefinition } from "@/registry";
+import type { FieldWithValidation } from "@/types";
+import { buildSchema } from "@/utils";
 
-import {
-  ComboboxField,
-  DatePickerField,
-  FileUploadField,
-  InputField,
-  RadioGroupField,
-  SelectField,
-  SwitchField,
-  TextareaField,
-} from "./fields";
 import { Button } from "./ui";
 
 export function DynamicForm({
@@ -28,7 +19,7 @@ export function DynamicForm({
     data:
       | z.infer<ReturnType<typeof buildSchema>>
       | FieldWithValidation<ZodTypeAny>[],
-    isBuilderMode: boolean
+    isBuilderMode: boolean,
   ) => void;
   isBuilderMode?: boolean;
 }) {
@@ -43,7 +34,7 @@ export function DynamicForm({
         if (value instanceof z.ZodString) return [key, ""];
         if (value instanceof z.ZodDate) return [key, undefined];
         return [key, undefined];
-      })
+      }),
     ) as FormValues;
   }, [schema]);
 
@@ -63,7 +54,7 @@ export function DynamicForm({
     (data: FormValues) => {
       onSubmitForm(isBuilderMode ? config : data, isBuilderMode);
     },
-    [config, isBuilderMode, onSubmitForm]
+    [config, isBuilderMode, onSubmitForm],
   );
 
   return (
@@ -75,100 +66,24 @@ export function DynamicForm({
         {config.map((field) => {
           const { type, name, description } = field;
           const error = errors?.[name]?.message as string | undefined;
+          const definition = getFieldDefinition(type);
 
-          switch (type) {
-            case "input":
-              return (
-                <InputField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            case "textarea":
-              return (
-                <TextareaField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            case "select":
-              return (
-                <SelectField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            case "radio":
-              return (
-                <RadioGroupField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            case "date":
-              return (
-                <DatePickerField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            case "file":
-              return (
-                <FileUploadField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            case "switch":
-              return (
-                <SwitchField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            case "combobox":
-              return (
-                <ComboboxField
-                  key={name}
-                  control={control}
-                  error={error}
-                  description={description}
-                  {...field}
-                />
-              );
-
-            default:
-              console.warn(`⚠️ Unsupported field type: ${type}`);
-              return null;
+          if (!definition) {
+            console.warn("Unsupported field type:", type);
+            return null;
           }
+
+          const Renderer = definition.renderer;
+
+          return (
+            <Renderer
+              key={name}
+              control={control}
+              error={error}
+              description={description}
+              {...field}
+            />
+          );
         })}
 
         <Button type="submit">Submit</Button>
