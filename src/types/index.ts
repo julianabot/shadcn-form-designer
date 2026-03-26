@@ -32,8 +32,7 @@ type FieldType =
   | "radio"
   | "date"
   | "select"
-  | "switch"
-  | "checkbox";
+  | "switch";
 
 interface BaseField extends CommonFieldMeta {
   type: FieldType;
@@ -48,7 +47,7 @@ interface TextField extends BaseField {
 }
 
 interface BooleanField extends BaseField {
-  type: "checkbox" | "switch";
+  type: "switch";
 }
 
 interface MultipleOptionField extends BaseField {
@@ -78,10 +77,6 @@ type FieldConfig =
 type FieldWithValidation<T extends ZodTypeAny> = FieldConfig & {
   name: string;
   validation: T;
-};
-
-type FieldWithValue<T extends FieldValues> = FieldConfig & {
-  value: T;
 };
 
 /**
@@ -135,24 +130,12 @@ type SerializableFieldConfig = FieldConfig & {
 };
 
 export type {
-  BaseField,
-  BooleanField,
-  BooleanValidation,
-  DateField,
-  DateValidation,
-  EnumValidation,
   FieldConfig,
   FieldProps,
   FieldType,
   FieldWithValidation,
-  FieldWithValue,
-  FileField,
-  FileValidation,
-  MultipleOptionField,
   MultipleOptionFieldProps,
   Option,
   SerializableFieldConfig,
-  StringValidation,
-  TextField,
   ValidationDescriptor,
 };

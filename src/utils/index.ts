@@ -181,7 +181,6 @@ function toSerializableField(
         },
       };
     case "switch":
-    case "checkbox":
       return {
         ...base,
         validation: { type: "boolean" },
