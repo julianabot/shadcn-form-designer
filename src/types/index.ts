@@ -84,18 +84,75 @@ type FieldWithValue<T extends FieldValues> = FieldConfig & {
   value: T;
 };
 
+/**
+ * A version of FieldWithValidation that can be serialized
+ * to JSON and stored in a database.
+ */
+
+interface StringValidation {
+  type: "string";
+  min?: number;
+  max?: number;
+  pattern?: "email" | "url" | "uuid" | "regex";
+  regex?: string;
+}
+
+interface BooleanValidation {
+  type: "boolean";
+}
+
+interface EnumValidation {
+  type: "enum";
+  values: [string, ...string[]];
+}
+
+interface DateValidation {
+  type: "date";
+  min?: string; // ISO date string
+  max?: string; // ISO date string
+}
+
+interface FileValidation {
+  type: "file";
+  accept?: string;
+  maxSizeMB?: number;
+}
+
+type ValidationDescriptor =
+  | StringValidation
+  | BooleanValidation
+  | EnumValidation
+  | DateValidation
+  | FileValidation;
+
+/**
+ * A fully serializable field config that can be saved to a database
+ * or sent over the wire as JSON. No Zod instances.
+ */
+type SerializableFieldConfig = FieldConfig & {
+  name: string;
+  validation: ValidationDescriptor;
+};
+
 export type {
   BaseField,
   BooleanField,
+  BooleanValidation,
   DateField,
+  DateValidation,
+  EnumValidation,
   FieldConfig,
   FieldProps,
   FieldType,
   FieldWithValidation,
   FieldWithValue,
   FileField,
+  FileValidation,
   MultipleOptionField,
   MultipleOptionFieldProps,
   Option,
+  SerializableFieldConfig,
+  StringValidation,
   TextField,
+  ValidationDescriptor,
 };

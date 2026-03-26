@@ -1,23 +1,31 @@
 import { AddFieldDialog, DynamicForm } from "@/components";
-import type { FieldConfig, FieldWithValidation } from "@/types";
-import { buildSchema, buildValidation } from "@/utils";
+import { FormConfig } from "@/data";
+import type {
+  FieldConfig,
+  FieldWithValidation,
+  SerializableFieldConfig,
+} from "@/types";
+import { buildSchema, toSerializableField } from "@/utils";
 import { useState } from "react";
 import type { z, ZodTypeAny } from "zod";
-import { FormConfig } from "../../data";
 
 export function FormDesigner() {
-  const [fields, setFields] = useState<FieldWithValidation<ZodTypeAny>[]>([]);
+  const [fields, setFields] = useState<SerializableFieldConfig[]>([]);
 
   const handleAddField = (values: FieldConfig) => {
-    setFields((prev) => [...prev, buildValidation(values)]);
-    console.log("New Field Added:", values);
+    const serializable = toSerializableField(values);
+    setFields((prev) => [...prev, serializable]);
+    console.log(
+      "New Field Added (serializable):",
+      JSON.stringify(serializable),
+    );
   };
 
   const onSubmitForm = (
     data:
       | z.infer<ReturnType<typeof buildSchema>>
       | FieldWithValidation<ZodTypeAny>[],
-    isBuilderMode: boolean
+    isBuilderMode: boolean,
   ) => {
     console.log("Is builder mode:", isBuilderMode);
     console.log("Form Submitted:", data);

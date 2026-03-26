@@ -4,17 +4,35 @@ import { FormProvider, useForm } from "react-hook-form";
 import { z, type ZodTypeAny } from "zod";
 
 import { getFieldDefinition } from "@/registry";
-import type { FieldWithValidation } from "@/types";
-import { buildSchema } from "@/utils";
+import type { FieldWithValidation, SerializableFieldConfig } from "@/types";
+import { buildSchema, buildZodSchema } from "@/utils";
 
 import { Button } from "./ui";
+
+type DynamicFormConfig =
+  | FieldWithValidation<ZodTypeAny>[]
+  | SerializableFieldConfig[];
+
+function isSerializableConfig(
+  config: DynamicFormConfig,
+): config is SerializableFieldConfig[] {
+  if (config.length === 0) return false;
+  const first = config[0];
+  return (
+    "validation" in first &&
+    typeof first.validation === "object" &&
+    first.validation !== null &&
+    "type" in (first.validation as object) &&
+    typeof (first.validation as { type: unknown }).type === "string"
+  );
+}
 
 export function DynamicForm({
   config,
   onSubmitForm,
   isBuilderMode = false,
 }: {
-  config: FieldWithValidation<ZodTypeAny>[];
+  config: DynamicFormConfig;
   onSubmitForm: (
     data:
       | z.infer<ReturnType<typeof buildSchema>>
@@ -23,7 +41,14 @@ export function DynamicForm({
   ) => void;
   isBuilderMode?: boolean;
 }) {
-  const schema = useMemo(() => buildSchema(config), [config]);
+  const hydratedConfig = useMemo<FieldWithValidation<ZodTypeAny>[]>(() => {
+    if (isSerializableConfig(config)) {
+      return buildZodSchema(config);
+    }
+    return config as FieldWithValidation<ZodTypeAny>[];
+  }, [config]);
+
+  const schema = useMemo(() => buildSchema(hydratedConfig), [hydratedConfig]);
   type FormValues = z.infer<typeof schema>;
 
   const defaultValues = useMemo(() => {
@@ -52,9 +77,9 @@ export function DynamicForm({
 
   const onSubmit = useCallback(
     (data: FormValues) => {
-      onSubmitForm(isBuilderMode ? config : data, isBuilderMode);
+      onSubmitForm(isBuilderMode ? hydratedConfig : data, isBuilderMode);
     },
-    [config, isBuilderMode, onSubmitForm],
+    [hydratedConfig, isBuilderMode, onSubmitForm],
   );
 
   return (
@@ -63,13 +88,13 @@ export function DynamicForm({
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-2xl flex flex-col gap-5"
       >
-        {config.map((field) => {
+        {hydratedConfig.map((field) => {
           const { type, name, description } = field;
           const error = errors?.[name]?.message as string | undefined;
           const definition = getFieldDefinition(type);
 
           if (!definition) {
-            console.warn("Unsupported field type:", type);
+            console.warn(`⚠️ Unsupported field type: ${type}`);
             return null;
           }
 
