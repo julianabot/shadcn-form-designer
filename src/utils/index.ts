@@ -3,6 +3,7 @@ import type {
   FieldConfig,
   FieldType,
   FieldWithValidation,
+  FormLayout,
   SerializableFieldConfig,
   ValidationDescriptor,
 } from "@/types";
@@ -208,6 +209,31 @@ function toSerializableField(
   }
 }
 
+/**
+ * Converts a flat array of SerializableFieldConfig into a FormLayout.
+ * Each field gets its own single-column row in one default section.
+ * Use this as a migration path from flat arrays to the layout model.
+ */
+function toFormLayout(configs: SerializableFieldConfig[]): FormLayout {
+  const fields: Record<string, SerializableFieldConfig> = {};
+  for (const config of configs) {
+    fields[config.name] = config;
+  }
+
+  return {
+    fields,
+    sections: [
+      {
+        order: 0,
+        fields: configs.map((config, index) => ({
+          fieldName: config.name,
+          order: index,
+        })),
+      },
+    ],
+  };
+}
+
 export {
   buildSchema,
   buildValidation,
@@ -218,5 +244,6 @@ export {
   isFileFieldType,
   isInputFieldType,
   isMultipleOptionFieldType,
+  toFormLayout,
   toSerializableField,
 };

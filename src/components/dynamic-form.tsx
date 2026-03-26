@@ -4,19 +4,33 @@ import { FormProvider, useForm } from "react-hook-form";
 import { z, type ZodTypeAny } from "zod";
 
 import { getFieldDefinition } from "@/registry";
-import type { FieldWithValidation, SerializableFieldConfig } from "@/types";
+import type {
+  FieldWithValidation,
+  FormLayout,
+  SerializableFieldConfig,
+} from "@/types";
 import { buildSchema, buildZodSchema } from "@/utils";
 
 import { Button } from "./ui";
 
 type DynamicFormConfig =
   | FieldWithValidation<ZodTypeAny>[]
-  | SerializableFieldConfig[];
+  | SerializableFieldConfig[]
+  | FormLayout;
+
+function isFormLayout(config: DynamicFormConfig): config is FormLayout {
+  return (
+    !Array.isArray(config) &&
+    typeof config === "object" &&
+    "fields" in config &&
+    "sections" in config
+  );
+}
 
 function isSerializableConfig(
   config: DynamicFormConfig,
 ): config is SerializableFieldConfig[] {
-  if (config.length === 0) return false;
+  if (!Array.isArray(config) || config.length === 0) return false;
   const first = config[0];
   return (
     "validation" in first &&
@@ -25,6 +39,39 @@ function isSerializableConfig(
     "type" in (first.validation as object) &&
     typeof (first.validation as { type: unknown }).type === "string"
   );
+}
+
+/** Resolve any config variant into a hydrated field array + optional layout. */
+function resolveConfig(config: DynamicFormConfig) {
+  if (isFormLayout(config)) {
+    const flatConfigs = Object.values(config.fields);
+    const hydrated = buildZodSchema(flatConfigs);
+    const fieldMap = new Map(hydrated.map((f) => [f.name, f]));
+
+    // Sort sections and fields within each section by order
+    const sorted: FormLayout = {
+      ...config,
+      sections: [...config.sections]
+        .sort((a, b) => a.order - b.order)
+        .map((section) => ({
+          ...section,
+          fields: [...section.fields].sort((a, b) => a.order - b.order),
+        })),
+    };
+
+    return { hydrated, layout: sorted, fieldMap };
+  }
+
+  if (isSerializableConfig(config)) {
+    const hydrated = buildZodSchema(config);
+    return { hydrated, layout: null, fieldMap: null };
+  }
+
+  return {
+    hydrated: config as FieldWithValidation<ZodTypeAny>[],
+    layout: null,
+    fieldMap: null,
+  };
 }
 
 export function DynamicForm({
@@ -41,14 +88,12 @@ export function DynamicForm({
   ) => void;
   isBuilderMode?: boolean;
 }) {
-  const hydratedConfig = useMemo<FieldWithValidation<ZodTypeAny>[]>(() => {
-    if (isSerializableConfig(config)) {
-      return buildZodSchema(config);
-    }
-    return config as FieldWithValidation<ZodTypeAny>[];
-  }, [config]);
+  const { hydrated, layout, fieldMap } = useMemo(
+    () => resolveConfig(config),
+    [config],
+  );
 
-  const schema = useMemo(() => buildSchema(hydratedConfig), [hydratedConfig]);
+  const schema = useMemo(() => buildSchema(hydrated), [hydrated]);
   type FormValues = z.infer<typeof schema>;
 
   const defaultValues = useMemo(() => {
@@ -77,10 +122,59 @@ export function DynamicForm({
 
   const onSubmit = useCallback(
     (data: FormValues) => {
-      onSubmitForm(isBuilderMode ? hydratedConfig : data, isBuilderMode);
+      onSubmitForm(isBuilderMode ? hydrated : data, isBuilderMode);
     },
-    [hydratedConfig, isBuilderMode, onSubmitForm],
+    [hydrated, isBuilderMode, onSubmitForm],
   );
+
+  const renderField = (field: FieldWithValidation<ZodTypeAny>) => {
+    const { type, name, description } = field;
+    const error = errors?.[name]?.message as string | undefined;
+    const definition = getFieldDefinition(type);
+
+    if (!definition) {
+      console.warn(`⚠️ Unsupported field type: ${type}`);
+      return null;
+    }
+
+    const Renderer = definition.renderer;
+
+    return (
+      <Renderer
+        key={name}
+        control={control}
+        error={error}
+        description={description}
+        {...field}
+      />
+    );
+  };
+
+  const renderWithLayout = () => {
+    if (!layout || !fieldMap) return null;
+
+    return layout.sections.map((section, si) => (
+      <div key={si} className="flex flex-col gap-5">
+        {section.title && (
+          <div className="flex flex-col gap-1">
+            <h3 className="text-lg font-semibold">{section.title}</h3>
+            {section.description && (
+              <p className="text-sm text-muted-foreground">
+                {section.description}
+              </p>
+            )}
+          </div>
+        )}
+        {section.fields.map((layoutField) => {
+          const field = fieldMap.get(layoutField.fieldName);
+          if (!field) return null;
+          return renderField(field);
+        })}
+      </div>
+    ));
+  };
+
+  const renderFlat = () => hydrated.map(renderField);
 
   return (
     <FormProvider {...form}>
@@ -88,29 +182,7 @@ export function DynamicForm({
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-2xl flex flex-col gap-5"
       >
-        {hydratedConfig.map((field) => {
-          const { type, name, description } = field;
-          const error = errors?.[name]?.message as string | undefined;
-          const definition = getFieldDefinition(type);
-
-          if (!definition) {
-            console.warn(`⚠️ Unsupported field type: ${type}`);
-            return null;
-          }
-
-          const Renderer = definition.renderer;
-
-          return (
-            <Renderer
-              key={name}
-              control={control}
-              error={error}
-              description={description}
-              {...field}
-            />
-          );
-        })}
-
+        {layout ? renderWithLayout() : renderFlat()}
         <Button type="submit">Submit</Button>
       </form>
     </FormProvider>

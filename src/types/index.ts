@@ -129,11 +129,46 @@ type SerializableFieldConfig = FieldConfig & {
   validation: ValidationDescriptor;
 };
 
+/** LAYOUT MODEL */
+
+/**
+ * A reference to a field within a section, with explicit ordering.
+ * `order` is the source of truth for position — ready for drag-and-drop reordering.
+ */
+type LayoutField = {
+  fieldName: string;
+  order: number;
+};
+
+/**
+ * A section groups fields under an optional heading.
+ * `order` controls position within the form.
+ */
+type FormSection = {
+  order: number;
+  title?: string;
+  description?: string;
+  fields: LayoutField[];
+};
+
+/**
+ * Top-level form layout definition. Pairs a flat field map
+ * with an ordered list of sections, each containing ordered field refs.
+ * Fully serializable — no Zod, no component references.
+ */
+type FormLayout = {
+  fields: Record<string, SerializableFieldConfig>;
+  sections: FormSection[];
+};
+
 export type {
   FieldConfig,
   FieldProps,
   FieldType,
   FieldWithValidation,
+  FormLayout,
+  FormSection,
+  LayoutField,
   MultipleOptionFieldProps,
   Option,
   SerializableFieldConfig,

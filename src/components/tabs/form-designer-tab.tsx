@@ -3,9 +3,10 @@ import { FormConfig } from "@/data";
 import type {
   FieldConfig,
   FieldWithValidation,
+  FormLayout,
   SerializableFieldConfig,
 } from "@/types";
-import { buildSchema, toSerializableField } from "@/utils";
+import { buildSchema, toFormLayout, toSerializableField } from "@/utils";
 import { useState } from "react";
 import type { z, ZodTypeAny } from "zod";
 
@@ -31,11 +32,15 @@ export function FormDesigner() {
     console.log("Form Submitted:", data);
   };
 
+  const formConfig: FormLayout = fields.length
+    ? toFormLayout(fields)
+    : FormConfig;
+
   return (
     <div className="w-full flex flex-col justify-center items-center">
       <AddFieldDialog handleAddField={handleAddField} />
       <DynamicForm
-        config={fields.length ? fields : FormConfig}
+        config={formConfig}
         onSubmitForm={onSubmitForm}
         isBuilderMode={false}
       />
