@@ -23,22 +23,6 @@ function buildSchema(config: FieldWithValidation<ZodTypeAny>[]) {
   );
 }
 
-function isInputFieldType(type: string) {
-  return type === "input" || type === "textarea";
-}
-
-function isMultipleOptionFieldType(type: string) {
-  return type === "combobox" || type === "radio" || type === "select";
-}
-
-function isDateFieldType(type: string) {
-  return type === "date";
-}
-
-function isFileFieldType(type: string) {
-  return type === "file";
-}
-
 function isFieldType(type: string): type is FieldType {
   return hasFieldType(type);
 }
@@ -58,10 +42,8 @@ function buildValidation(field: FieldConfig): FieldWithValidation<ZodTypeAny> {
   };
 }
 
-/**
- * Converts an array of SerializableFieldConfig (with pure JSON validation descriptors)
- * into FieldWithValidation[] with live Zod schemas, ready for DynamicForm.
- */
+// --- Serializable JSON → live Zod hydration ---
+
 function hydrateValidation(
   descriptor: ValidationDescriptor,
   required?: boolean,
@@ -239,11 +221,7 @@ export {
   buildValidation,
   buildZodSchema,
   hydrateValidation,
-  isDateFieldType,
   isFieldType,
-  isFileFieldType,
-  isInputFieldType,
-  isMultipleOptionFieldType,
   toFormLayout,
   toSerializableField,
 };

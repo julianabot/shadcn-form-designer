@@ -1,4 +1,8 @@
 import {
+  MultiOptionConfigPanel,
+  TextConfigPanel,
+} from "@/components/config-panels";
+import {
   ComboboxField,
   DatePickerField,
   FileUploadField,
@@ -11,6 +15,7 @@ import {
 import type { FieldConfig, FieldWithValidation } from "@/types";
 import type { ZodTypeAny } from "zod";
 import { z } from "zod";
+import type { AddFieldFormValues } from "./index";
 import { registerField } from "./index";
 
 function buildTextValidation(
@@ -107,6 +112,123 @@ function buildFileValidation(
   };
 }
 
+/** Shared config schema pieces */
+
+const textConfigSchema = {
+  minLength: z.string().optional(),
+  maxLength: z.string().optional(),
+};
+
+const textConfigSuperRefine = (
+  data: AddFieldFormValues,
+  ctx: z.RefinementCtx,
+) => {
+  if (!data.minLength || !data.maxLength) {
+    ctx.addIssue({
+      path: ["minLength"],
+      code: z.ZodIssueCode.custom,
+      message: "Min and Max are required",
+    });
+  } else if (Number(data.minLength) >= Number(data.maxLength)) {
+    ctx.addIssue({
+      path: ["maxLength"],
+      code: z.ZodIssueCode.custom,
+      message: "Max must be greater than Min",
+    });
+  }
+};
+
+const textConfigDefaults = { minLength: "0", maxLength: "100" };
+
+function buildTextFieldConfig(values: AddFieldFormValues): FieldConfig {
+  return {
+    type: values.type as "input" | "textarea",
+    label: values.label,
+    description: values.description,
+    required: values.required,
+    minLength: values.minLength ? Number(values.minLength) : undefined,
+    maxLength: values.maxLength ? Number(values.maxLength) : undefined,
+  };
+}
+
+const multiOptionConfigSchema = {
+  options: z.array(z.string()).optional(),
+};
+
+const multiOptionConfigSuperRefine = (
+  data: AddFieldFormValues,
+  ctx: z.RefinementCtx,
+) => {
+  const cleaned = data.options?.map((opt) => opt?.trim());
+  if (cleaned && cleaned.length < 2) {
+    ctx.addIssue({
+      path: ["options"],
+      code: z.ZodIssueCode.custom,
+      message: "At least 2 options are required",
+    });
+  }
+  const isNoDuplicates = cleaned?.length === new Set(cleaned).size;
+  if (!isNoDuplicates) {
+    ctx.addIssue({
+      path: ["options"],
+      code: z.ZodIssueCode.custom,
+      message: "Options must be unique",
+    });
+  }
+};
+
+const multiOptionConfigDefaults = { options: [""] };
+
+function buildMultiOptionFieldConfig(values: AddFieldFormValues): FieldConfig {
+  const options = values.options?.filter(Boolean) ?? [];
+  return {
+    type: values.type as "combobox" | "radio" | "select",
+    label: values.label,
+    description: values.description,
+    required: values.required,
+    options: options.map((label) => ({
+      label,
+      value: label
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .slice(0, 10),
+    })),
+  };
+}
+
+function buildSimpleFieldConfig(values: AddFieldFormValues): FieldConfig {
+  switch (values.type) {
+    case "date":
+      return {
+        type: "date",
+        label: values.label,
+        description: values.description,
+        required: values.required,
+      };
+    case "file":
+      return {
+        type: "file",
+        label: values.label,
+        description: values.description,
+        required: values.required,
+      };
+    case "switch":
+      return {
+        type: "switch",
+        label: values.label,
+        description: values.description,
+        required: values.required,
+      };
+    default:
+      return {
+        type: "switch",
+        label: values.label,
+        description: values.description,
+        required: values.required,
+      };
+  }
+}
+
 export function registerBuiltInFields(): void {
   registerField({
     type: "input",
@@ -114,6 +236,11 @@ export function registerBuiltInFields(): void {
     category: "text",
     renderer: InputField,
     buildValidation: buildTextValidation,
+    configSchema: textConfigSchema,
+    configSuperRefine: textConfigSuperRefine,
+    configDefaults: textConfigDefaults,
+    configPanel: TextConfigPanel,
+    buildFieldConfig: buildTextFieldConfig,
   });
 
   registerField({
@@ -122,6 +249,11 @@ export function registerBuiltInFields(): void {
     category: "text",
     renderer: TextareaField,
     buildValidation: buildTextValidation,
+    configSchema: textConfigSchema,
+    configSuperRefine: textConfigSuperRefine,
+    configDefaults: textConfigDefaults,
+    configPanel: TextConfigPanel,
+    buildFieldConfig: buildTextFieldConfig,
   });
 
   registerField({
@@ -130,6 +262,11 @@ export function registerBuiltInFields(): void {
     category: "multi-option",
     renderer: SelectField,
     buildValidation: buildMultiOptionValidation,
+    configSchema: multiOptionConfigSchema,
+    configSuperRefine: multiOptionConfigSuperRefine,
+    configDefaults: multiOptionConfigDefaults,
+    configPanel: MultiOptionConfigPanel,
+    buildFieldConfig: buildMultiOptionFieldConfig,
   });
 
   registerField({
@@ -138,6 +275,11 @@ export function registerBuiltInFields(): void {
     category: "multi-option",
     renderer: ComboboxField,
     buildValidation: buildMultiOptionValidation,
+    configSchema: multiOptionConfigSchema,
+    configSuperRefine: multiOptionConfigSuperRefine,
+    configDefaults: multiOptionConfigDefaults,
+    configPanel: MultiOptionConfigPanel,
+    buildFieldConfig: buildMultiOptionFieldConfig,
   });
 
   registerField({
@@ -146,6 +288,11 @@ export function registerBuiltInFields(): void {
     category: "multi-option",
     renderer: RadioGroupField,
     buildValidation: buildMultiOptionValidation,
+    configSchema: multiOptionConfigSchema,
+    configSuperRefine: multiOptionConfigSuperRefine,
+    configDefaults: multiOptionConfigDefaults,
+    configPanel: MultiOptionConfigPanel,
+    buildFieldConfig: buildMultiOptionFieldConfig,
   });
 
   registerField({
@@ -154,6 +301,7 @@ export function registerBuiltInFields(): void {
     category: "date",
     renderer: DatePickerField,
     buildValidation: buildDateValidation,
+    buildFieldConfig: buildSimpleFieldConfig,
   });
 
   registerField({
@@ -162,6 +310,7 @@ export function registerBuiltInFields(): void {
     category: "file",
     renderer: FileUploadField,
     buildValidation: buildFileValidation,
+    buildFieldConfig: buildSimpleFieldConfig,
   });
 
   registerField({
@@ -170,5 +319,6 @@ export function registerBuiltInFields(): void {
     category: "boolean",
     renderer: SwitchField,
     buildValidation: buildBooleanValidation,
+    buildFieldConfig: buildSimpleFieldConfig,
   });
 }
