@@ -7,11 +7,11 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useEffect, useState } from "react";
+import type { FieldProps } from "@/types";
+import { memo, useEffect, useState } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps } from "../../types";
 
-function FileUploadField<TFieldValues extends FieldValues>({
+function FileUploadFieldInner<TFieldValues extends FieldValues>({
   control,
   name,
   error,
@@ -56,5 +56,9 @@ function FileUploadField<TFieldValues extends FieldValues>({
     />
   );
 }
+
+const FileUploadField = memo(
+  FileUploadFieldInner,
+) as typeof FileUploadFieldInner;
 
 export { FileUploadField };

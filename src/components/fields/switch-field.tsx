@@ -6,11 +6,12 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
+import type { FieldProps } from "@/types";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps } from "../../types";
 
-function SwitchField<TFieldValues extends FieldValues>(
-  props: FieldProps<TFieldValues>
+function SwitchFieldInner<TFieldValues extends FieldValues>(
+  props: FieldProps<TFieldValues>,
 ) {
   const { control, name, label, description } = props;
 
@@ -32,5 +33,7 @@ function SwitchField<TFieldValues extends FieldValues>(
     />
   );
 }
+
+const SwitchField = memo(SwitchFieldInner) as typeof SwitchFieldInner;
 
 export { SwitchField };

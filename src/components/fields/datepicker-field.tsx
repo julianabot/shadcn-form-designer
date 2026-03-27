@@ -8,19 +8,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import type { FieldProps } from "@/types";
 import type { Locale } from "date-fns";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps } from "../../types";
 
-interface DatePickerFieldProps<TFieldValues extends FieldValues>
-  extends FieldProps<TFieldValues> {
+interface DatePickerFieldProps<
+  TFieldValues extends FieldValues,
+> extends FieldProps<TFieldValues> {
   minDate?: Date;
   maxDate?: Date;
   locale?: Locale;
 }
 
-export function DatePickerField<TFieldValues extends FieldValues>(
-  props: DatePickerFieldProps<TFieldValues>
+function DatePickerFieldInner<TFieldValues extends FieldValues>(
+  props: DatePickerFieldProps<TFieldValues>,
 ) {
   const { control, name, label, placeholder, minDate, maxDate, locale } = props;
 
@@ -47,3 +49,9 @@ export function DatePickerField<TFieldValues extends FieldValues>(
     />
   );
 }
+
+const DatePickerField = memo(
+  DatePickerFieldInner,
+) as typeof DatePickerFieldInner;
+
+export { DatePickerField };

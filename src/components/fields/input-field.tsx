@@ -7,18 +7,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import type { FieldProps } from "@/types";
 import { clsx } from "clsx";
 import type { HTMLInputTypeAttribute } from "react";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps } from "../../types";
 
-interface InputFieldProps<TFieldValues extends FieldValues>
-  extends FieldProps<TFieldValues> {
+interface InputFieldProps<
+  TFieldValues extends FieldValues,
+> extends FieldProps<TFieldValues> {
   type?: HTMLInputTypeAttribute | undefined;
 }
 
-function InputField<TFieldValues extends FieldValues>(
-  props: InputFieldProps<TFieldValues>
+function InputFieldInner<TFieldValues extends FieldValues>(
+  props: InputFieldProps<TFieldValues>,
 ) {
   const { control, name, label, type, placeholder, description, error } = props;
 
@@ -35,7 +37,7 @@ function InputField<TFieldValues extends FieldValues>(
               type={type}
               className={clsx(
                 type === "time" &&
-                  "bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                  "bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none",
               )}
               {...field}
             />
@@ -47,5 +49,7 @@ function InputField<TFieldValues extends FieldValues>(
     />
   );
 }
+
+const InputField = memo(InputFieldInner) as typeof InputFieldInner;
 
 export { InputField };

@@ -127,28 +127,31 @@ export function DynamicForm({
     [hydrated, isBuilderMode, onSubmitForm],
   );
 
-  const renderField = (field: FieldWithValidation<ZodTypeAny>) => {
-    const { type, name, description } = field;
-    const error = errors?.[name]?.message as string | undefined;
-    const definition = getFieldDefinition(type);
+  const renderField = useCallback(
+    (field: FieldWithValidation<ZodTypeAny>) => {
+      const { type, name, description } = field;
+      const error = errors?.[name]?.message as string | undefined;
+      const definition = getFieldDefinition(type);
 
-    if (!definition) {
-      console.warn(`⚠️ Unsupported field type: ${type}`);
-      return null;
-    }
+      if (!definition) {
+        console.warn(`⚠️ Unsupported field type: ${type}`);
+        return null;
+      }
 
-    const Renderer = definition.renderer;
+      const Renderer = definition.renderer;
 
-    return (
-      <Renderer
-        key={name}
-        control={control}
-        error={error}
-        description={description}
-        {...field}
-      />
-    );
-  };
+      return (
+        <Renderer
+          key={name}
+          control={control}
+          error={error}
+          description={description}
+          {...field}
+        />
+      );
+    },
+    [control, errors],
+  );
 
   const renderWithLayout = () => {
     if (!layout || !fieldMap) return null;

@@ -13,11 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { MultipleOptionFieldProps } from "@/types";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { MultipleOptionFieldProps } from "../../types";
 
-function SelectField<TFieldValues extends FieldValues>(
-  props: MultipleOptionFieldProps<TFieldValues>
+function SelectFieldInner<TFieldValues extends FieldValues>(
+  props: MultipleOptionFieldProps<TFieldValues>,
 ) {
   const {
     control,
@@ -57,5 +58,7 @@ function SelectField<TFieldValues extends FieldValues>(
     />
   );
 }
+
+const SelectField = memo(SelectFieldInner) as typeof SelectFieldInner;
 
 export { SelectField };
