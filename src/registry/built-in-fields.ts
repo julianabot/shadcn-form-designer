@@ -276,6 +276,39 @@ function buildDateFieldConfig(values: AddFieldFormValues): FieldConfig {
   };
 }
 
+/** Time field — renders InputField with type="time" */
+
+function buildTimeValidation(
+  config: FieldConfig,
+): FieldWithValidation<ZodTypeAny> {
+  const { required } = config;
+  const name = crypto.randomUUID();
+  const validation = z.string();
+
+  return {
+    ...config,
+    name,
+    validation: required
+      ? validation.min(1, { message: "This field is required" })
+      : validation.optional(),
+  };
+}
+
+// Wrapper that passes type="time" to InputField
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function TimeInputField(props: any) {
+  return InputField({ ...props, type: "time" });
+}
+
+function buildTimeFieldConfig(values: AddFieldFormValues): FieldConfig {
+  return {
+    type: "time",
+    label: values.label,
+    description: values.description,
+    required: values.required,
+  };
+}
+
 export function registerBuiltInFields(): void {
   registerField({
     type: "input",
@@ -371,5 +404,14 @@ export function registerBuiltInFields(): void {
     renderer: SwitchField,
     buildValidation: buildBooleanValidation,
     buildFieldConfig: buildSimpleFieldConfig,
+  });
+
+  registerField({
+    type: "time",
+    label: "Time",
+    category: "text",
+    renderer: TimeInputField,
+    buildValidation: buildTimeValidation,
+    buildFieldConfig: buildTimeFieldConfig,
   });
 }

@@ -168,6 +168,11 @@ function toSerializableField(
         ...base,
         validation: { type: "boolean" },
       };
+    case "time":
+      return {
+        ...base,
+        validation: { type: "string" },
+      };
     case "date":
       return {
         ...base,

@@ -31,6 +31,7 @@ type FieldType =
   | "combobox"
   | "radio"
   | "date"
+  | "time"
   | "select"
   | "switch";
 
@@ -44,6 +45,11 @@ interface TextField extends BaseField {
   placeholder?: string;
   minLength?: number;
   maxLength?: number;
+}
+
+interface TimeField extends BaseField {
+  type: "time";
+  placeholder?: string;
 }
 
 interface BooleanField extends BaseField {
@@ -69,6 +75,7 @@ interface FileField extends BaseField {
 
 type FieldConfig =
   | TextField
+  | TimeField
   | BooleanField
   | MultipleOptionField
   | DateField
