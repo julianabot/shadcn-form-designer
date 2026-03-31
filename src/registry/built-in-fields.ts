@@ -1,4 +1,5 @@
 import {
+  DateConfigPanel,
   MultiOptionConfigPanel,
   TextConfigPanel,
 } from "@/components/config-panels";
@@ -214,13 +215,6 @@ function buildMultiOptionFieldConfig(values: AddFieldFormValues): FieldConfig {
 
 function buildSimpleFieldConfig(values: AddFieldFormValues): FieldConfig {
   switch (values.type) {
-    case "date":
-      return {
-        type: "date",
-        label: values.label,
-        description: values.description,
-        required: values.required,
-      };
     case "file":
       return {
         type: "file",
@@ -243,6 +237,43 @@ function buildSimpleFieldConfig(values: AddFieldFormValues): FieldConfig {
         required: values.required,
       };
   }
+}
+
+/** Date config */
+
+const dateConfigSchema = {
+  minDate: z.string().optional(),
+  maxDate: z.string().optional(),
+};
+
+const dateConfigSuperRefine = (
+  data: AddFieldFormValues,
+  ctx: z.RefinementCtx,
+) => {
+  if (data.minDate && data.maxDate) {
+    const min = new Date(data.minDate);
+    const max = new Date(data.maxDate);
+    if (min >= max) {
+      ctx.addIssue({
+        path: ["maxDate"],
+        code: z.ZodIssueCode.custom,
+        message: "Max date must be after min date",
+      });
+    }
+  }
+};
+
+const dateConfigDefaults = { minDate: "", maxDate: "" };
+
+function buildDateFieldConfig(values: AddFieldFormValues): FieldConfig {
+  return {
+    type: "date",
+    label: values.label,
+    description: values.description,
+    required: values.required,
+    minDate: values.minDate ? new Date(values.minDate) : undefined,
+    maxDate: values.maxDate ? new Date(values.maxDate) : undefined,
+  };
 }
 
 export function registerBuiltInFields(): void {
@@ -317,7 +348,11 @@ export function registerBuiltInFields(): void {
     category: "date",
     renderer: DatePickerField,
     buildValidation: buildDateValidation,
-    buildFieldConfig: buildSimpleFieldConfig,
+    configSchema: dateConfigSchema,
+    configSuperRefine: dateConfigSuperRefine,
+    configDefaults: dateConfigDefaults,
+    configPanel: DateConfigPanel,
+    buildFieldConfig: buildDateFieldConfig,
   });
 
   registerField({

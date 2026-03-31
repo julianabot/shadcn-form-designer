@@ -20,6 +20,9 @@ export interface AddFieldFormValues {
   maxLength?: string;
   /** multi-option fields */
   options?: string[];
+  /** date fields */
+  minDate?: string;
+  maxDate?: string;
 }
 
 /**
