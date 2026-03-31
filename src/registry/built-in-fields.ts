@@ -14,6 +14,7 @@ import {
   TextareaField,
 } from "@/components/fields";
 import type { FieldConfig, FieldWithValidation } from "@/types";
+import { createElement } from "react";
 import type { ZodTypeAny } from "zod";
 import { z } from "zod";
 import type { AddFieldFormValues } from "./index";
@@ -115,16 +116,21 @@ function buildFileValidation(
   config: FieldConfig,
 ): FieldWithValidation<ZodTypeAny> {
   const name = crypto.randomUUID();
+  const accept = config.type === "file" ? config.accept : undefined;
+  const maxSizeMB = config.type === "file" ? config.maxSizeMB : undefined;
+  const maxBytes = (maxSizeMB ?? 5) * 1024 * 1024;
+  const acceptPrefix = accept?.replace("/*", "/") ?? "image/";
+
   return {
     ...config,
     name,
     validation: z
       .instanceof(File, { message: "Must be a file" })
-      .refine((file) => file.type.startsWith("image/"), {
-        message: "File must be an image",
+      .refine((file) => file.type.startsWith(acceptPrefix), {
+        message: `File must be of type ${accept ?? "image/*"}`,
       })
-      .refine((file) => file.size <= 5 * 1024 * 1024, {
-        message: "Image must be less than 5MB",
+      .refine((file) => file.size <= maxBytes, {
+        message: `File must be less than ${maxSizeMB ?? 5}MB`,
       }),
   };
 }
@@ -297,7 +303,7 @@ function buildTimeValidation(
 // Wrapper that passes type="time" to InputField
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TimeInputField(props: any) {
-  return InputField({ ...props, type: "time" });
+  return createElement(InputField, { ...props, type: "time" });
 }
 
 function buildTimeFieldConfig(values: AddFieldFormValues): FieldConfig {

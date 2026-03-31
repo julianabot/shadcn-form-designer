@@ -36,7 +36,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:types": "tsc -p tsconfig.build.json",
-    "build": "npm run build:types && vite build"
+    "build": "npm run build:types && vite build",
+    "test": "vitest --run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@julianabot/ai-commit": "^1.1.7",
@@ -67,6 +69,9 @@
   "devDependencies": {
     "@eslint/js": "^9.30.1",
     "@tailwindcss/vite": "^4.1.11",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
@@ -75,10 +80,12 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "jsdom": "^29.0.1",
     "tailwind-variants": "^1.0.0",
     "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "vitest": "^4.1.2"
   }
 }

@@ -2,6 +2,7 @@
 
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,7 +18,9 @@ function RadioGroupFieldInner<TFieldValues extends FieldValues>({
   control,
   name,
   label,
+  description,
   options,
+  error,
 }: MultipleOptionFieldProps<TFieldValues>) {
   return (
     <FormField
@@ -44,7 +47,8 @@ function RadioGroupFieldInner<TFieldValues extends FieldValues>({
               ))}
             </RadioGroup>
           </FormControl>
-          <FormMessage />
+          {description && <FormDescription>{description}</FormDescription>}
+          {error ? <FormMessage>{error}</FormMessage> : <FormMessage />}
         </FormItem>
       )}
     />

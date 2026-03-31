@@ -3,6 +3,7 @@
 import { DatePicker } from "@/components/ui/date-picker";
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,7 +25,17 @@ interface DatePickerFieldProps<
 function DatePickerFieldInner<TFieldValues extends FieldValues>(
   props: DatePickerFieldProps<TFieldValues>,
 ) {
-  const { control, name, label, placeholder, minDate, maxDate, locale } = props;
+  const {
+    control,
+    name,
+    label,
+    description,
+    placeholder,
+    error,
+    minDate,
+    maxDate,
+    locale,
+  } = props;
 
   return (
     <FormField
@@ -43,7 +54,8 @@ function DatePickerFieldInner<TFieldValues extends FieldValues>(
               locale={locale}
             />
           </FormControl>
-          <FormMessage />
+          {description && <FormDescription>{description}</FormDescription>}
+          {error ? <FormMessage>{error}</FormMessage> : <FormMessage />}
         </FormItem>
       )}
     />
