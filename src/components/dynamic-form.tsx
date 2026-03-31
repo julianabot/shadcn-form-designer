@@ -105,10 +105,19 @@ export function DynamicForm({
   const defaultValues = useMemo(() => {
     return Object.fromEntries(
       Object.entries(schema.shape).map(([key, value]) => {
-        if (value instanceof z.ZodBoolean) return [key, false];
-        if (value instanceof z.ZodArray) return [key, []];
-        if (value instanceof z.ZodString) return [key, ""];
-        if (value instanceof z.ZodDate) return [key, undefined];
+        const typeName = value._def?.typeName;
+        if (typeName === "ZodBoolean") return [key, false];
+        if (typeName === "ZodArray") return [key, []];
+        if (typeName === "ZodString") return [key, ""];
+        if (typeName === "ZodDate") return [key, undefined];
+        // Handle ZodOptional wrapping
+        if (typeName === "ZodOptional") {
+          const innerTypeName = value._def?.innerType?._def?.typeName;
+          if (innerTypeName === "ZodBoolean") return [key, false];
+          if (innerTypeName === "ZodArray") return [key, []];
+          if (innerTypeName === "ZodString") return [key, ""];
+          if (innerTypeName === "ZodDate") return [key, undefined];
+        }
         return [key, undefined];
       }),
     ) as FormValues;

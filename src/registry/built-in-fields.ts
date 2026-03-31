@@ -87,10 +87,26 @@ function buildDateValidation(
 ): FieldWithValidation<ZodTypeAny> {
   const { required } = config;
   const name = crypto.randomUUID();
+  const minDate = config.type === "date" ? config.minDate : undefined;
+  const maxDate = config.type === "date" ? config.maxDate : undefined;
+
+  let validation = z.date();
+
+  if (minDate) {
+    validation = validation.min(minDate, {
+      message: `Date must be after ${minDate.toLocaleDateString()}`,
+    });
+  }
+  if (maxDate) {
+    validation = validation.max(maxDate, {
+      message: `Date must be before ${maxDate.toLocaleDateString()}`,
+    });
+  }
+
   return {
     ...config,
     name,
-    validation: required ? z.date() : z.date().optional(),
+    validation: required ? validation : validation.optional(),
   };
 }
 
