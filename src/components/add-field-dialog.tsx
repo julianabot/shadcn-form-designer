@@ -1,3 +1,5 @@
+"use client";
+
 import { InputField, SelectField, SwitchField } from "@/components/fields";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {

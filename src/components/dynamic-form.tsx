@@ -1,5 +1,7 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z, type ZodTypeAny } from "zod";
 
@@ -48,7 +50,6 @@ function resolveConfig(config: DynamicFormConfig) {
     const hydrated = buildZodSchema(flatConfigs);
     const fieldMap = new Map(hydrated.map((f) => [f.name, f]));
 
-    // Sort sections and fields within each section by order
     const sorted: FormLayout = {
       ...config,
       sections: [...config.sections]
@@ -74,20 +75,25 @@ function resolveConfig(config: DynamicFormConfig) {
   };
 }
 
+export interface DynamicFormProps {
+  config: DynamicFormConfig;
+  /** Called with validated form data on submit. */
+  onSubmit?: (data: Record<string, unknown>) => void;
+  /** Called with the hydrated field configs on submit (for builder/designer use). */
+  onSubmitFieldConfig?: (fields: FieldWithValidation<ZodTypeAny>[]) => void;
+  /** Called on every form value change with the current form state. */
+  onChange?: (values: Record<string, unknown>) => void;
+  /** Called when a field type has no registered definition. Defaults to console.warn. */
+  onUnsupportedField?: (type: string, fieldName: string) => void;
+}
+
 export function DynamicForm({
   config,
-  onSubmitForm,
-  isBuilderMode = false,
-}: {
-  config: DynamicFormConfig;
-  onSubmitForm: (
-    data:
-      | z.infer<ReturnType<typeof buildSchema>>
-      | FieldWithValidation<ZodTypeAny>[],
-    isBuilderMode: boolean,
-  ) => void;
-  isBuilderMode?: boolean;
-}) {
+  onSubmit,
+  onSubmitFieldConfig,
+  onChange,
+  onUnsupportedField,
+}: DynamicFormProps) {
   const { hydrated, layout, fieldMap } = useMemo(
     () => resolveConfig(config),
     [config],
@@ -118,13 +124,28 @@ export function DynamicForm({
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = form;
 
-  const onSubmit = useCallback(
+  // Real-time form state via onChange
+  useEffect(() => {
+    if (!onChange) return;
+    const subscription = watch((values) => {
+      onChange(values as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onChange]);
+
+  const handleFormSubmit = useCallback(
     (data: FormValues) => {
-      onSubmitForm(isBuilderMode ? hydrated : data, isBuilderMode);
+      if (onSubmitFieldConfig) {
+        onSubmitFieldConfig(hydrated);
+      }
+      if (onSubmit) {
+        onSubmit(data as Record<string, unknown>);
+      }
     },
-    [hydrated, isBuilderMode, onSubmitForm],
+    [hydrated, onSubmit, onSubmitFieldConfig],
   );
 
   const renderField = useCallback(
@@ -134,7 +155,11 @@ export function DynamicForm({
       const definition = getFieldDefinition(type);
 
       if (!definition) {
-        console.warn(`⚠️ Unsupported field type: ${type}`);
+        if (onUnsupportedField) {
+          onUnsupportedField(type, name);
+        } else {
+          console.warn(`Unsupported field type: "${type}" (field: "${name}")`);
+        }
         return null;
       }
 
@@ -150,7 +175,7 @@ export function DynamicForm({
         />
       );
     },
-    [control, errors],
+    [control, errors, onUnsupportedField],
   );
 
   const renderWithLayout = () => {
@@ -182,7 +207,7 @@ export function DynamicForm({
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(handleFormSubmit)}
         className="w-full max-w-2xl flex flex-col gap-5"
       >
         {layout ? renderWithLayout() : renderFlat()}

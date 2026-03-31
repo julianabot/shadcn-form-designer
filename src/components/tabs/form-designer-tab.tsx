@@ -6,9 +6,9 @@ import type {
   FormLayout,
   SerializableFieldConfig,
 } from "@/types";
-import { buildSchema, toFormLayout, toSerializableField } from "@/utils";
+import { toFormLayout, toSerializableField } from "@/utils";
 import { useState } from "react";
-import type { z, ZodTypeAny } from "zod";
+import type { ZodTypeAny } from "zod";
 
 export function FormDesigner() {
   const [fields, setFields] = useState<SerializableFieldConfig[]>([]);
@@ -22,16 +22,6 @@ export function FormDesigner() {
     );
   };
 
-  const onSubmitForm = (
-    data:
-      | z.infer<ReturnType<typeof buildSchema>>
-      | FieldWithValidation<ZodTypeAny>[],
-    isBuilderMode: boolean,
-  ) => {
-    console.log("Is builder mode:", isBuilderMode);
-    console.log("Form Submitted:", data);
-  };
-
   const formConfig: FormLayout = fields.length
     ? toFormLayout(fields)
     : FormConfig;
@@ -41,8 +31,10 @@ export function FormDesigner() {
       <AddFieldDialog handleAddField={handleAddField} />
       <DynamicForm
         config={formConfig}
-        onSubmitForm={onSubmitForm}
-        isBuilderMode={false}
+        onSubmit={(data) => console.log("Form Submitted:", data)}
+        onSubmitFieldConfig={(fields: FieldWithValidation<ZodTypeAny>[]) =>
+          console.log("Field configs:", fields)
+        }
       />
     </div>
   );

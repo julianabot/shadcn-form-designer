@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import {
@@ -17,15 +19,16 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 
-interface MultiOptionInputFieldPropsExtended<TFieldValues extends FieldValues>
-  extends MultipleOptionFieldProps<TFieldValues> {
+interface MultiOptionInputFieldPropsExtended<
+  TFieldValues extends FieldValues,
+> extends MultipleOptionFieldProps<TFieldValues> {
   register: UseFormRegister<TFieldValues>;
   setValue: UseFormSetValue<TFieldValues>;
   control: Control<TFieldValues>;
 }
 
 function MultiOptionInputField<TFieldValues extends FieldValues>(
-  props: MultiOptionInputFieldPropsExtended<TFieldValues>
+  props: MultiOptionInputFieldPropsExtended<TFieldValues>,
 ) {
   const { control, name, label, options, error, register, setValue } = props;
   return (
@@ -53,7 +56,7 @@ function MultiOptionInputField<TFieldValues extends FieldValues>(
                       setValue(
                         name as Path<TFieldValues>,
                         options.filter((_, i) => i !== index) as any,
-                        { shouldValidate: true }
+                        { shouldValidate: true },
                       )
                     }
                   >
@@ -77,7 +80,7 @@ function MultiOptionInputField<TFieldValues extends FieldValues>(
                   ...(options ? options.map((opt) => opt.value) : []),
                   "",
                 ] as any,
-                { shouldValidate: true }
+                { shouldValidate: true },
               )
             }
           >
