@@ -221,6 +221,8 @@ function toFormLayout(configs: SerializableFieldConfig[]): FormLayout {
   };
 }
 
+export { toAddFieldValues } from "./to-add-field-values";
+
 export {
   buildSchema,
   buildValidation,

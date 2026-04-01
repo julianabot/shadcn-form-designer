@@ -20,11 +20,31 @@ import type { Resolver } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 
-function AddFieldDialog(props: {
+export interface AddFieldDialogProps {
   handleAddField: (values: FieldConfig) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const { handleAddField } = props;
+  /** When provided, the dialog opens in edit mode prepopulated with these values. */
+  initialValues?: AddFieldFormValues;
+  /** Controls open state externally (for edit mode). */
+  open?: boolean;
+  /** Called when the dialog wants to close (for edit mode). */
+  onOpenChange?: (open: boolean) => void;
+}
+
+function AddFieldDialog({
+  handleAddField,
+  initialValues,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: AddFieldDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled
+    ? (v: boolean) => controlledOnOpenChange?.(v)
+    : setInternalOpen;
+
+  const isEditMode = !!initialValues;
 
   const fieldDefinitions = useMemo(() => getFieldDefinitions(), []);
   const fieldTypes = useMemo(
@@ -32,7 +52,9 @@ function AddFieldDialog(props: {
     [fieldDefinitions],
   );
 
-  const [selectedType, setSelectedType] = useState("input");
+  const [selectedType, setSelectedType] = useState(
+    initialValues?.type ?? "input",
+  );
   const activeDefinition = useMemo(
     () => getFieldDefinition(selectedType),
     [selectedType],
@@ -50,14 +72,10 @@ function AddFieldDialog(props: {
       required: z.boolean(),
     };
 
-    // Merge type-specific config schema from the registry
     const extraSchema = activeDefinition?.configSchema ?? {};
     const merged = z.object({ ...baseShape, ...extraSchema });
 
-    // Apply type-specific refinement if present
     const superRefine = activeDefinition?.configSuperRefine;
-    // Cast needed: dynamic ZodRawShape produces { [x: string]: any } which
-    // can't structurally match AddFieldFormValues at compile time.
     const refined = superRefine
       ? merged.superRefine(
           superRefine as Parameters<typeof merged.superRefine>[0],
@@ -68,6 +86,7 @@ function AddFieldDialog(props: {
   }, [fieldTypes, activeDefinition]);
 
   const defaultValues = useMemo((): AddFieldFormValues => {
+    if (initialValues) return initialValues;
     const base: AddFieldFormValues = {
       label: "",
       description: "",
@@ -75,11 +94,8 @@ function AddFieldDialog(props: {
       required: false,
     };
     return { ...base, ...(activeDefinition?.configDefaults ?? {}) };
-  }, [activeDefinition]);
+  }, [activeDefinition, initialValues]);
 
-  // zodResolver infers { [x: string]: any } from the dynamic schema.
-  // We know at runtime the shape always satisfies AddFieldFormValues,
-  // so a single cast at this boundary keeps the rest fully typed.
   const form = useForm<AddFieldFormValues>({
     resolver: zodResolver(
       FormSchema,
@@ -97,15 +113,15 @@ function AddFieldDialog(props: {
 
   const type = watch("type");
 
-  // Keep selectedType in sync with the form's type field
   useEffect(() => {
     if (type !== selectedType) {
       setSelectedType(type);
     }
   }, [type, selectedType]);
 
-  // Reset extra fields when type changes
+  // Reset extra fields when type changes (only in add mode)
   useEffect(() => {
+    if (isEditMode) return;
     const def = getFieldDefinition(type);
     if (def?.configDefaults) {
       const entries = Object.entries(def.configDefaults) as [
@@ -116,25 +132,38 @@ function AddFieldDialog(props: {
         form.setValue(key, value);
       }
     }
-  }, [type, form]);
+  }, [type, form, isEditMode]);
 
+  // Reset form when dialog closes (add mode) or when initialValues change (edit mode)
   useEffect(() => {
     if (!open) {
-      reset();
-      setSelectedType("input");
+      reset(
+        initialValues ?? {
+          label: "",
+          description: "",
+          type: "input",
+          required: false,
+        },
+      );
+      setSelectedType(initialValues?.type ?? "input");
     }
-  }, [open, reset]);
+  }, [open, reset, initialValues]);
+
+  // Sync form when initialValues change while open (edit mode)
+  useEffect(() => {
+    if (isEditMode && initialValues && open) {
+      reset(initialValues);
+      setSelectedType(initialValues.type);
+    }
+  }, [initialValues, isEditMode, open, reset]);
 
   const processFormSubmit = (data: AddFieldFormValues) => {
     setOpen(false);
-    reset();
 
     const def = getFieldDefinition(data.type);
     if (def?.buildFieldConfig) {
       handleAddField(def.buildFieldConfig(data));
     } else {
-      // Every registered type should provide buildFieldConfig.
-      // This fallback treats unknown types as switch (boolean) fields.
       handleAddField({
         type: "switch",
         label: data.label,
@@ -148,16 +177,21 @@ function AddFieldDialog(props: {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        className={cn(
-          buttonVariants({ variant: "outline", className: "rounded-4xl" }),
-        )}
-      >
-        + Add New Field
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger
+          className={cn(
+            buttonVariants({ variant: "outline", className: "rounded-4xl" }),
+            "mb-5",
+          )}
+        >
+          + Add New Field
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Field</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Field" : "Add New Field"}
+          </DialogTitle>
           <DialogDescription className="hidden"></DialogDescription>
         </DialogHeader>
         <FormProvider {...form}>
@@ -190,7 +224,7 @@ function AddFieldDialog(props: {
             {ConfigPanel && <ConfigPanel form={form} />}
             <SwitchField control={control} name="required" label="Required" />
             <Button type="submit" className="mt-5">
-              Submit
+              {isEditMode ? "Save Changes" : "Submit"}
             </Button>
           </form>
         </FormProvider>
