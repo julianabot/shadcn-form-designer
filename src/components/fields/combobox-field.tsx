@@ -10,11 +10,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import type { MultipleOptionFieldProps } from "@/types";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { MultipleOptionFieldProps } from "../../types";
 
-function ComboboxField<TFieldValues extends FieldValues>(
-  props: MultipleOptionFieldProps<TFieldValues>
+function ComboboxFieldInner<TFieldValues extends FieldValues>(
+  props: MultipleOptionFieldProps<TFieldValues>,
 ) {
   const {
     control,
@@ -42,7 +43,7 @@ function ComboboxField<TFieldValues extends FieldValues>(
               placeholder={placeholder}
               className={cn(
                 `justify-between ${error && "border-destructive"}`,
-                className
+                className,
               )}
             />
           </FormControl>
@@ -53,5 +54,7 @@ function ComboboxField<TFieldValues extends FieldValues>(
     />
   );
 }
+
+const ComboboxField = memo(ComboboxFieldInner) as typeof ComboboxFieldInner;
 
 export { ComboboxField };

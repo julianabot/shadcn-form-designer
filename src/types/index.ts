@@ -31,9 +31,9 @@ type FieldType =
   | "combobox"
   | "radio"
   | "date"
+  | "time"
   | "select"
-  | "switch"
-  | "checkbox";
+  | "switch";
 
 interface BaseField extends CommonFieldMeta {
   type: FieldType;
@@ -47,8 +47,13 @@ interface TextField extends BaseField {
   maxLength?: number;
 }
 
+interface TimeField extends BaseField {
+  type: "time";
+  placeholder?: string;
+}
+
 interface BooleanField extends BaseField {
-  type: "checkbox" | "switch";
+  type: "switch";
 }
 
 interface MultipleOptionField extends BaseField {
@@ -70,6 +75,7 @@ interface FileField extends BaseField {
 
 type FieldConfig =
   | TextField
+  | TimeField
   | BooleanField
   | MultipleOptionField
   | DateField
@@ -80,22 +86,98 @@ type FieldWithValidation<T extends ZodTypeAny> = FieldConfig & {
   validation: T;
 };
 
-type FieldWithValue<T extends FieldValues> = FieldConfig & {
-  value: T;
+/**
+ * A version of FieldWithValidation that can be serialized
+ * to JSON and stored in a database.
+ */
+
+interface StringValidation {
+  type: "string";
+  min?: number;
+  max?: number;
+  pattern?: "email" | "url" | "uuid" | "regex";
+  regex?: string;
+}
+
+interface BooleanValidation {
+  type: "boolean";
+}
+
+interface EnumValidation {
+  type: "enum";
+  values: [string, ...string[]];
+}
+
+interface DateValidation {
+  type: "date";
+  min?: string; // ISO date string
+  max?: string; // ISO date string
+}
+
+interface FileValidation {
+  type: "file";
+  accept?: string;
+  maxSizeMB?: number;
+}
+
+type ValidationDescriptor =
+  | StringValidation
+  | BooleanValidation
+  | EnumValidation
+  | DateValidation
+  | FileValidation;
+
+/**
+ * A fully serializable field config that can be saved to a database
+ * or sent over the wire as JSON. No Zod instances.
+ */
+type SerializableFieldConfig = FieldConfig & {
+  name: string;
+  validation: ValidationDescriptor;
+};
+
+/** LAYOUT MODEL */
+
+/**
+ * A reference to a field within a section, with explicit ordering.
+ * `order` is the source of truth for position — ready for drag-and-drop reordering.
+ */
+type LayoutField = {
+  fieldName: string;
+  order: number;
+};
+
+/**
+ * A section groups fields under an optional heading.
+ * `order` controls position within the form.
+ */
+type FormSection = {
+  order: number;
+  title?: string;
+  description?: string;
+  fields: LayoutField[];
+};
+
+/**
+ * Top-level form layout definition. Pairs a flat field map
+ * with an ordered list of sections, each containing ordered field refs.
+ * Fully serializable — no Zod, no component references.
+ */
+type FormLayout = {
+  fields: Record<string, SerializableFieldConfig>;
+  sections: FormSection[];
 };
 
 export type {
-  BaseField,
-  BooleanField,
-  DateField,
   FieldConfig,
   FieldProps,
   FieldType,
   FieldWithValidation,
-  FieldWithValue,
-  FileField,
-  MultipleOptionField,
+  FormLayout,
+  FormSection,
+  LayoutField,
   MultipleOptionFieldProps,
   Option,
-  TextField,
+  SerializableFieldConfig,
+  ValidationDescriptor,
 };

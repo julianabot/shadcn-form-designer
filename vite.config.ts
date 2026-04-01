@@ -24,7 +24,9 @@ export default defineConfig({
         "react/jsx-runtime",
         "react-hook-form",
         "@hookform/resolvers",
+        "@hookform/resolvers/zod",
         "zod",
+        "tailwindcss",
       ],
       output: {
         globals: {
@@ -33,6 +35,7 @@ export default defineConfig({
           "react/jsx-runtime": "jsxRuntime",
           "react-hook-form": "ReactHookForm",
           "@hookform/resolvers": "HookFormResolvers",
+          "@hookform/resolvers/zod": "HookFormResolversZod",
           zod: "Zod",
         },
       },

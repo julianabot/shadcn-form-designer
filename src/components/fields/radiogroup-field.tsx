@@ -2,6 +2,7 @@
 
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -9,14 +10,17 @@ import {
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { MultipleOptionFieldProps } from "@/types";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { MultipleOptionFieldProps } from "../../types";
 
-export function RadioGroupField<TFieldValues extends FieldValues>({
+function RadioGroupFieldInner<TFieldValues extends FieldValues>({
   control,
   name,
   label,
+  description,
   options,
+  error,
 }: MultipleOptionFieldProps<TFieldValues>) {
   return (
     <FormField
@@ -43,9 +47,16 @@ export function RadioGroupField<TFieldValues extends FieldValues>({
               ))}
             </RadioGroup>
           </FormControl>
-          <FormMessage />
+          {description && <FormDescription>{description}</FormDescription>}
+          {error ? <FormMessage>{error}</FormMessage> : <FormMessage />}
         </FormItem>
       )}
     />
   );
 }
+
+const RadioGroupField = memo(
+  RadioGroupFieldInner,
+) as typeof RadioGroupFieldInner;
+
+export { RadioGroupField };

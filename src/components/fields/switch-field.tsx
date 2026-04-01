@@ -1,18 +1,22 @@
+"use client";
+
 import {
   FormControl,
   FormDescription,
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
+import type { FieldProps } from "@/types";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps } from "../../types";
 
-function SwitchField<TFieldValues extends FieldValues>(
-  props: FieldProps<TFieldValues>
+function SwitchFieldInner<TFieldValues extends FieldValues>(
+  props: FieldProps<TFieldValues>,
 ) {
-  const { control, name, label, description } = props;
+  const { control, name, label, description, error } = props;
 
   return (
     <FormField
@@ -22,7 +26,8 @@ function SwitchField<TFieldValues extends FieldValues>(
         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
           <div className="space-y-0.5">
             <FormLabel>{label}</FormLabel>
-            <FormDescription>{description}</FormDescription>
+            {description && <FormDescription>{description}</FormDescription>}
+            {error && <FormMessage>{error}</FormMessage>}
           </div>
           <FormControl>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -32,5 +37,7 @@ function SwitchField<TFieldValues extends FieldValues>(
     />
   );
 }
+
+const SwitchField = memo(SwitchFieldInner) as typeof SwitchFieldInner;
 
 export { SwitchField };

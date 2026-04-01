@@ -1,3 +1,5 @@
+"use client";
+
 import {
   FormControl,
   FormDescription,
@@ -7,11 +9,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import type { FieldProps } from "@/types";
+import { memo } from "react";
 import type { FieldValues } from "react-hook-form";
-import type { FieldProps } from "../../types";
 
-function TextareaField<TFieldValues extends FieldValues>(
-  props: FieldProps<TFieldValues>
+function TextareaFieldInner<TFieldValues extends FieldValues>(
+  props: FieldProps<TFieldValues>,
 ) {
   const { control, name, label, placeholder, description, error } = props;
 
@@ -35,5 +38,7 @@ function TextareaField<TFieldValues extends FieldValues>(
     />
   );
 }
+
+const TextareaField = memo(TextareaFieldInner) as typeof TextareaFieldInner;
 
 export { TextareaField };
