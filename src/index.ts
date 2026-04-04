@@ -2,6 +2,7 @@
 export { AddFieldDialog } from "./components/add-field-dialog";
 export { DynamicForm } from "./components/dynamic-form";
 
+export type { AddFieldDialogProps } from "./components/add-field-dialog";
 export type { DynamicFormProps } from "./components/dynamic-form";
 /** Field registry */
 export {
@@ -55,6 +56,7 @@ export {
   buildZodSchema,
   hydrateValidation,
   isFieldType,
+  toAddFieldValues,
   toFormLayout,
   toSerializableField,
 } from "./utils";

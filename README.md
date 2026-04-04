@@ -73,6 +73,7 @@ function App() {
 | `date`     | Date picker       | `minDate`, `maxDate`                    |
 | `file`     | File upload       | `accept`, `maxSizeMB`                   |
 | `switch`   | Boolean toggle    | —                                       |
+| `time`     | Time picker       | `placeholder`                           |
 
 ## Form Config Formats
 
@@ -138,21 +139,40 @@ A `FieldWithValidation<ZodTypeAny>[]` with live Zod schemas, for when you need f
 
 ## DynamicForm Props
 
-| Prop                  | Type                                                               | Description                                                                       |
-| --------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| `config`              | `SerializableFieldConfig[] \| FormLayout \| FieldWithValidation[]` | Form definition (auto-detected)                                                   |
-| `onSubmit`            | `(data: Record<string, unknown>) => void`                          | Called with validated form data on submit                                         |
-| `onSubmitFieldConfig` | `(fields: FieldWithValidation[]) => void`                          | Called with hydrated field configs on submit — useful for builder/designer mode   |
-| `onChange`            | `(values: Record<string, unknown>) => void`                        | Called on every value change with current form state                              |
-| `onUnsupportedField`  | `(type: string, fieldName: string) => void`                        | Called when a field type has no registered definition. Defaults to `console.warn` |
+| Prop                  | Type                                                               | Description                                                                                                              |
+| --------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `config`              | `SerializableFieldConfig[] \| FormLayout \| FieldWithValidation[]` | Form definition (auto-detected)                                                                                          |
+| `mode`                | `"view" \| "editor"`                                               | `"view"` renders a normal form (default). `"editor"` shows a sortable field list with edit, delete, and drag-to-reorder. |
+| `onSubmit`            | `(data: Record<string, unknown>) => void`                          | Called with validated form data on submit                                                                                |
+| `onSubmitFieldConfig` | `(fields: FieldWithValidation[]) => void`                          | Called with hydrated field configs on submit — useful for builder/designer mode                                          |
+| `onChange`            | `(values: Record<string, unknown>) => void`                        | Called on every value change with current form state                                                                     |
+| `onUnsupportedField`  | `(type: string, fieldName: string) => void`                        | Called when a field type has no registered definition. Defaults to `console.warn`                                        |
+| `onFieldClick`        | `(fieldName: string) => void`                                      | Editor mode: called when the edit button is clicked                                                                      |
+| `onFieldDelete`       | `(fieldName: string) => void`                                      | Editor mode: called when the delete button is clicked                                                                    |
+| `onFieldsReorder`     | `(orderedNames: string[]) => void`                                 | Editor mode: called after drag-and-drop with the new ordered field names                                                 |
 
 ## Visual Form Designer
 
-`AddFieldDialog` gives users a UI to add fields at runtime. Pair it with `DynamicForm` for a full designer experience — see [Saving and Loading Forms](#saving-and-loading-forms) for a complete example.
+`AddFieldDialog` gives users a UI to add fields at runtime. It also supports an edit mode — pass `initialValues` with controlled `open`/`onOpenChange` to reopen the dialog prepopulated with an existing field's config.
 
-## Saving and Loading Forms
+### AddFieldDialog Props
 
-The serializable config format is designed to be stored as JSON — no Zod instances, no component references. Here's the full round-trip:
+| Prop             | Type                            | Description                                           |
+| ---------------- | ------------------------------- | ----------------------------------------------------- |
+| `handleAddField` | `(values: FieldConfig) => void` | Called with the new/updated field config on submit    |
+| `initialValues`  | `AddFieldFormValues`            | Prepopulates the dialog for editing an existing field |
+| `open`           | `boolean`                       | Controls open state externally (for edit mode)        |
+| `onOpenChange`   | `(open: boolean) => void`       | Called when the dialog wants to close (for edit mode) |
+
+When `initialValues` is provided, the dialog shows "Edit Field" / "Save Changes" instead of "Add New Field" / "Submit".
+
+### Editor Mode
+
+Set `mode="editor"` on `DynamicForm` to get a field management UI instead of a live form. Each field renders as a row with:
+
+- A drag handle for reordering (powered by `@dnd-kit/sortable`)
+- An edit button that opens `AddFieldDialog` prepopulated with the field's config
+- A delete button to remove the field
 
 ```tsx
 import {
@@ -161,49 +181,99 @@ import {
   DynamicForm,
   toSerializableField,
   toFormLayout,
+  toAddFieldValues,
 } from "@julianabot/shadcn-form-designer";
 import type {
   FieldConfig,
   SerializableFieldConfig,
-  FormLayout,
 } from "@julianabot/shadcn-form-designer";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 registerBuiltInFields();
 
 function FormDesigner() {
   const [fields, setFields] = useState<SerializableFieldConfig[]>([]);
+  const [editingFieldName, setEditingFieldName] = useState<string | null>(null);
 
   const handleAddField = (config: FieldConfig) => {
     setFields((prev) => [...prev, toSerializableField(config)]);
   };
 
-  // Save to your backend — it's plain JSON
-  const handleSave = async () => {
-    const layout = toFormLayout(fields);
-    await fetch("/api/forms", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(layout),
-    });
+  const handleEditField = (config: FieldConfig) => {
+    if (!editingFieldName) return;
+    setFields((prev) =>
+      prev.map((f) =>
+        f.name === editingFieldName
+          ? toSerializableField(config, editingFieldName)
+          : f,
+      ),
+    );
+    setEditingFieldName(null);
   };
+
+  const editingField = editingFieldName
+    ? fields.find((f) => f.name === editingFieldName)
+    : null;
 
   return (
     <div>
       <AddFieldDialog handleAddField={handleAddField} />
       <DynamicForm
         config={toFormLayout(fields)}
-        onSubmit={(data) => console.log(data)}
+        mode="editor"
+        onFieldClick={(name) => setEditingFieldName(name)}
+        onFieldDelete={(name) =>
+          setFields((prev) => prev.filter((f) => f.name !== name))
+        }
+        onFieldsReorder={(ordered) =>
+          setFields((prev) => {
+            const map = new Map(prev.map((f) => [f.name, f]));
+            return ordered.map((n) => map.get(n)!);
+          })
+        }
       />
-      <button onClick={handleSave}>Save Form</button>
+      {/* Edit dialog — controlled externally */}
+      <AddFieldDialog
+        handleAddField={handleEditField}
+        initialValues={
+          editingField ? toAddFieldValues(editingField) : undefined
+        }
+        open={!!editingFieldName}
+        onOpenChange={(open) => {
+          if (!open) setEditingFieldName(null);
+        }}
+      />
     </div>
   );
 }
 ```
 
+## Saving and Loading Forms
+
+The serializable config format is designed to be stored as JSON — no Zod instances, no component references. Here's the full round-trip:
+
+```tsx
+import { toFormLayout } from "@julianabot/shadcn-form-designer";
+import type { SerializableFieldConfig } from "@julianabot/shadcn-form-designer";
+
+// Save to your backend — it's plain JSON
+const handleSave = async (fields: SerializableFieldConfig[]) => {
+  const layout = toFormLayout(fields);
+  await fetch("/api/forms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(layout),
+  });
+};
+```
+
 To load a saved form, just pass the JSON back to `DynamicForm`:
 
 ```tsx
+import { DynamicForm } from "@julianabot/shadcn-form-designer";
+import type { FormLayout } from "@julianabot/shadcn-form-designer";
+import { useEffect, useState } from "react";
+
 function FormRenderer({ formId }: { formId: string }) {
   const [layout, setLayout] = useState<FormLayout | null>(null);
 
@@ -267,6 +337,7 @@ Validation is defined as plain JSON — no Zod in your config files. The library
 | ------------------------------------------ | ------------------------------------------------------------------------------------- |
 | `toSerializableField(config, name?)`       | Converts a `FieldConfig` to a JSON-serializable `SerializableFieldConfig`             |
 | `toFormLayout(configs)`                    | Converts a flat `SerializableFieldConfig[]` into a `FormLayout` with a single section |
+| `toAddFieldValues(field)`                  | Converts a `SerializableFieldConfig` back to `AddFieldFormValues` for edit mode       |
 | `buildValidation(config)`                  | Creates a `FieldWithValidation` with a live Zod schema from a `FieldConfig`           |
 | `buildZodSchema(configs)`                  | Hydrates a `SerializableFieldConfig[]` into `FieldWithValidation[]` with Zod schemas  |
 | `hydrateValidation(descriptor, required?)` | Converts a JSON `ValidationDescriptor` into a Zod schema                              |
@@ -277,6 +348,7 @@ Validation is defined as plain JSON — no Zod in your config files. The library
 - Tailwind CSS + ShadCN UI (Radix primitives)
 - Zod for runtime validation
 - react-hook-form for form state
+- @dnd-kit for drag-and-drop reordering
 - Vite for bundling
 
 ## License
